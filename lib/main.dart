@@ -1,93 +1,171 @@
 import 'package:flutter/material.dart';
+import 'package:twitter/twitter.dart';
+import 'dart:convert';
+import 'package:html/parser.dart' show parse;
+import 'dart:io';
+import 'package:oauth1/oauth1.dart' as oauth1;
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(MyApp());
+// define platform (server)
+var platform = new oauth1.Platform(
+    'https://api.twitter.com/oauth/request_token', // temporary credentials request
+    'https://api.twitter.com/oauth/authorize',     // resource owner authorization
+    'https://api.twitter.com/oauth/access_token',  // token credentials request
+    oauth1.SignatureMethods.HMAC_SHA1              // signature method
+    );
 
+// define client credentials (consumer keys)
+const String apiKey = '***REMOVED***';
+const String apiSecret = '***REMOVED***';
+var clientCredentials = new oauth1.ClientCredentials(apiKey, apiSecret);
+
+// create Authorization object with client credentials and platform definition
+var auth = new oauth1.Authorization(clientCredentials, platform);
+
+var result;
+
+void main() {
+  runApp(MaterialApp(
+    title: 'Cheep for Twitter',
+    theme: new ThemeData(primaryColor: Colors.blue),
+    home: MyApp(),
+  ));
+}
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+
+  String address;
+  var myController = TextEditingController();
+
+
+  MyApp({Key key, @required this.address}) : super(key: key);
+
+  @override
+  void dispose() {
+    // Clean up the controller when the Widget is disposed
+    myController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Cheep for Twitter',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+
+    var loginButton = RaisedButton(
+          child: Text("Login with Twitter"),
+          padding: const EdgeInsets.all(8.0),
+          textColor: Colors.white,
+          color: Colors.blue,
+          onPressed: () {
+            // request temporary credentials (request tokens)
+            auth.requestTemporaryCredentials('oob').then((res) {
+              // redirect to authorization page
+              print("Open with your browser: ${auth.getResourceOwnerAuthorizationURI(res.credentials.token)}");
+              // get verifier (PIN)
+              stdout.write("PIN: ");
+              String verifier = stdin.readLineSync();
+              result = res;
+              // request token credentials (access tokens)
+              return auth.getResourceOwnerAuthorizationURI(res.credentials.token);
+            }).then((res){
+              print("Result"+res);
+              address = res;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LoginPage(address: address),
+              ));
+            });
+            
+          },
+        );
+
+    return Scaffold(
+      appBar: AppBar(title: Text("Cheep Login")),
+      body: Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center,
+          children: [loginButton,
+                      Container(child:TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Please enter a search term'
+                        ),
+                        controller: myController,
+                      ),margin: EdgeInsets.fromLTRB(40, 20, 0, 40),),
+                      RaisedButton(
+                        child: Text("Send PIN"),
+                        padding: const EdgeInsets.all(8.0),
+                        textColor: Colors.white,
+                        color: Colors.blue,
+                        onPressed: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Login(pin: myController.text),
+                            ));
+                        },
+                        )
+                      ]
+        ),
       ),
-      home: MyHomePage(title: 'Twitter Feed'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class LoginPage extends StatelessWidget {
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+  final String address;
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  LoginPage({Key key, @required this.address}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+
+    var authorizePage = new WebviewScaffold(
+                  url: address,
+                  appBar: new AppBar(
+                    title: new Text("Widget webview"),
+                  ),
+                );
+
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+      appBar: AppBar(title: Text("Cheep Login")),
+      body: Center(child: new MaterialApp(
+              routes: {
+                "/": (_) => authorizePage
+              }
+            ),
       ),
-      body: ListView(
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.map),
-              title: Text('Map'),
-            ),
-            ListTile(
-              leading: Icon(Icons.photo_album),
-              title: Text('Album'),
-            ),
-            ListTile(
-              leading: Icon(Icons.phone),
-              title: Text('Phone'),
-            ),
-          ],
+    );
+  }
+}
+
+class Login extends StatelessWidget {
+
+  final String pin;
+
+  Login({Key key, @required this.pin}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+
+    var results;
+
+    auth.requestTokenCredentials(result.credentials, pin).then((res){
+      // yeah, you got token credentials
+      // create Client object
+      var client = new oauth1.Client(platform.signatureMethod, clientCredentials, res.credentials);
+
+      // now you can access to protected resources via client
+      client.get('https://api.twitter.com/1.1/statuses/home_timeline.json?count=1').then((res) {
+        print(res.body);
+        results = res.body;
+      });
+
+      // NOTE: you can get optional values from AuthorizationResponse object
+      print("Your screen name is " + res.optionalParameters['screen_name']);
+    });
+    return Scaffold(
+      appBar: AppBar(title: Text("Cheep Login")),
+      body: Center(child: Text(results),
       ),
-      // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
