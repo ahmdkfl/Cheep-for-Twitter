@@ -27,22 +27,6 @@ class Twitterapi {
     return auth.requestTemporaryCredentials('oob');
   }
 
-  verifyPIN(result) {
-    // var result2 = await auth.requestTokenCredentials(result1.credentials, verifier);
-    auth.requestTokenCredentials(result.credentials, getPIN()).then((res){
-      // yeah, you got token credentials
-      // create Client object
-      var client = new oauth1.Client(platform.signatureMethod, clientCredentials, res.credentials);
-
-      // now you can access to protected resources via client
-      client.get('https://api.twitter.com/1.1/statuses/home_timeline.json?count=1').then((res) {
-        print(res.body);
-        
-      });
-
-    });
-  }
-
   Future<dynamic> getURI(){
     return auth.requestTemporaryCredentials('oob').then((res) {
       // redirect to authorization page
@@ -53,20 +37,8 @@ class Twitterapi {
     });
   }
 
-  getURII(res) async {
-    return await auth.getResourceOwnerAuthorizationURI(res.credentials.token);
-  }
-
-  getToken(code) async {
-    return await auth.requestTokenCredentials(authorizationResult.credentials, code);
-  }
-
-  setPIN(pin){
-    PIN = pin;
-  }
-  
-  String getPIN(){
-    return PIN;
+  getToken(code) {
+    return auth.requestTokenCredentials(authorizationResult.credentials, code);
   }
 
   getAuth(){
@@ -75,5 +47,10 @@ class Twitterapi {
 
   getAuthClient() {
     return new oauth1.Client(platform.signatureMethod, clientCredentials, authorizationResult.credentials);
+  }
+
+  getAuthorClient(token, tokenSecret) {
+    var credentials = new oauth1.Credentials(token, tokenSecret);
+    return new oauth1.Client(platform.signatureMethod, clientCredentials, credentials);
   }
 }

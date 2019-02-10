@@ -1,28 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:twitter/twitter.dart';
 import 'dart:convert';
+import 'dart:core';
 import 'package:html/parser.dart' show parse;
 import 'dart:io';
 import 'package:oauth1/oauth1.dart' as oauth1;
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Twitterapi api = new Twitterapi();
 
 void main() async {
+  getCredentials().then((credentials){
+      // var r = credentials;
+      // var r2 = r.split('=');
+      // var r3 = r2[1].split('&');
+      // var oauth_token_sec=r2[2];
+      // var oauth_token=r3[0];
+    if(credentials!= null){
+      var r = credentials;
+      var r2 = r.split('=');
+      var r3 = r2[1].split('&');
+      var oauth_token_sec=r2[2];
+      var oauth_token=r3[0];
+      print("token: "+oauth_token+" ; token_sec: "+oauth_token_sec);
+      runApp(MaterialApp(
+        title: 'Cheep for Twitter',
+        theme: new ThemeData(primaryColor: Colors.blue),
+        home: Test(keys: credentials)
+        )
+      );
+    }
+    else
   runApp(MaterialApp(
     title: 'Cheep for Twitter',
     theme: new ThemeData(primaryColor: Colors.blue),
     home: MyApp()
     )
   );
+  });
 }
 class MyApp extends StatelessWidget {
 
   String address;
   var pinTFController = TextEditingController();
-
 
   MyApp({Key key, @required this.address}) : super(key: key);
 
@@ -55,19 +78,7 @@ class MyApp extends StatelessWidget {
             });            
           },
         );
-
-    return Scaffold(
-      appBar: AppBar(title: Text("Cheep Login")),
-      body: Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center,
-          children: [loginButton,
-                      Container(child:TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Please enter a search term'
-                        ),
-                        controller: pinTFController,
-                      ),margin: EdgeInsets.fromLTRB(40, 20, 0, 40),),
-                      RaisedButton(
+    var sendPinButton = RaisedButton(
                         child: Text("Send PIN"),
                         padding: const EdgeInsets.all(8.0),
                         textColor: Colors.white,
@@ -76,6 +87,9 @@ class MyApp extends StatelessWidget {
 
                           api.getToken(pinTFController.text).then((res){
                             var client = api.getAuthClient();
+                            
+                            setCredentials().then((commited){
+                              print("Credentials saved");
 
                             // now you can access to protected resources via client
                             client.get('https://api.twitter.com/1.1/statuses/home_timeline.json?count=1').then((res) {
@@ -90,9 +104,25 @@ class MyApp extends StatelessWidget {
                               MaterialPageRoute(
                                   builder: (context) => Login(pin: res.optionalParameters['screen_name']),
                             ));
+                            });
                           });
                         },
-                        )
+                        );
+
+    return Scaffold(
+      appBar: AppBar(title: Text("Cheep Login")),
+      body: Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center,
+          children: [loginButton,
+                      Container(child:TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Please enter PIN'
+                        ),
+                        controller: pinTFController,
+                        ),
+                        margin: EdgeInsets.fromLTRB(40, 20, 0, 40),
+                      ),
+                      sendPinButton
                       ]
         ),
       ),
@@ -147,13 +177,40 @@ class Login extends StatelessWidget {
 
 class Test extends StatelessWidget {
 
+  String keys;
+
+  Test({Key key, @required this.keys}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     
+    var r = keys;
+    var r2 = r.split('=');
+    var r3 = r2[1].split('&');
+    var oauth_token_sec=r2[2];
+    var oauth_token=r3[0];
+    var client = api.getAuthorClient(oauth_token, oauth_token_sec);
+    client.get('https://api.twitter.com/1.1/statuses/home_timeline.json?count=1').then((res) {
+                              print(res.body);
+                              
+                            });
     return Scaffold(
       appBar: AppBar(title: Text("Cheep Login")),
-      body: Center(child: Text(""),
-      ),
+      body: Center(child: Text("")
+        ),
     );
   }
+}
+
+Future<bool> setCredentials() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var e = api.authorizationResult.credentials;
+  prefs.setString("credentials", e.toString());
+  return prefs.commit();
+}
+
+Future<String> getCredentials() async {
+	SharedPreferences prefs = await SharedPreferences.getInstance();
+	String cred = prefs.getString("credentials");
+  return cred;
 }
