@@ -28,7 +28,7 @@ void main() async {
       runApp(MaterialApp(
         title: 'Cheep for Twitter',
         theme: new ThemeData(primaryColor: Colors.blue),
-        home: Test(keys: credentials)
+        home: TabBarHome(keys: credentials)
         )
       );
     }
@@ -175,11 +175,11 @@ class Login extends StatelessWidget {
   }
 }
 
-class Test extends StatelessWidget {
+class TabBarHome extends StatelessWidget {
 
   String keys;
 
-  Test({Key key, @required this.keys}) : super(key: key);
+  TabBarHome({Key key, @required this.keys}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -193,10 +193,31 @@ class Test extends StatelessWidget {
     client.get('https://api.twitter.com/1.1/statuses/home_timeline.json?count=1').then((res) {
       print(res.body);
     });
-    return Scaffold(
-      appBar: AppBar(title: Text("Cheep Login")),
-      body: Center(child: Text("")
+    return MaterialApp(
+      home: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          bottomNavigationBar: TabBar(
+              tabs: [
+                Tab(icon: Icon(Icons.home)),
+                Tab(icon: Icon(Icons.perm_identity)),
+                Tab(icon: Icon(Icons.settings)),
+              ],
+              labelColor: Colors.blue,
+              unselectedLabelColor: Colors.lightBlueAccent,
+              indicatorSize: TabBarIndicatorSize.label,
+              indicatorPadding: EdgeInsets.all(5.0),
+              indicatorColor: Colors.blue,
+            ),
+          body: TabBarView(
+            children: [
+              new Container(color: Colors.red),
+              new Container(color: Colors.blue),
+              new Container(color: Colors.green)
+            ],
+          ),
         ),
+      ),
     );
   }
 }
