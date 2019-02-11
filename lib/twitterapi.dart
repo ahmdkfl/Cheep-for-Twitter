@@ -2,13 +2,13 @@ import 'package:oauth1/oauth1.dart' as oauth1;
 import 'dart:async';
 
 class Twitterapi {
-  var platform;
+  oauth1.Platform platform;
   static const String apiKey = '***REMOVED***';
   static const String apiSecret = '***REMOVED***';
-  var clientCredentials;
-  var auth;
+  oauth1.ClientCredentials clientCredentials;
+  oauth1.Authorization auth;
   var PIN;
-  var authorizationResult;
+  oauth1.AuthorizationResponse authorizationResult;
 
   Twitterapi(){
     platform = new oauth1.Platform(
@@ -19,12 +19,6 @@ class Twitterapi {
     );
     clientCredentials = new oauth1.ClientCredentials(apiKey, apiSecret);
     auth = new oauth1.Authorization(clientCredentials, platform);
-  }
-
-  getAuthorizationURL() {
-    // var result1 = await auth.requestTemporaryCredentials('oob');
-    // return auth.getResourceOwnerAuthorizationURI(result1.credentials.token);
-    return auth.requestTemporaryCredentials('oob');
   }
 
   Future<dynamic> getURI(){
@@ -50,7 +44,7 @@ class Twitterapi {
   }
 
   getAuthorClient(token, tokenSecret) {
-    var credentials = new oauth1.Credentials(token, tokenSecret);
+    oauth1.Credentials credentials = new oauth1.Credentials(token, tokenSecret);
     return new oauth1.Client(platform.signatureMethod, clientCredentials, credentials);
   }
 }
