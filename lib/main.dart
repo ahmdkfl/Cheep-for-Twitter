@@ -67,7 +67,6 @@ class MyApp extends StatelessWidget {
         api.getURI().then((res){
           return api.getAuth().getResourceOwnerAuthorizationURI(res.credentials.token);
         }).then((res){
-          print("Result"+res);
           address = res;
           Navigator.push(
             context,
@@ -88,16 +87,7 @@ class MyApp extends StatelessWidget {
           var client = api.getAuthClient();
           
           setCredentials(res).then((commited){
-            print("Credentials saved");
-
-          // now you can access to protected resources via client
-          client.get('https://api.twitter.com/1.1/statuses/home_timeline.json?count=1').then((res) {
-            print(res.body);
-            
-          });
-
-          // NOTE: you can get optional values from AuthorizationResponse object
-          print("Your screen name is " + res.optionalParameters['screen_name']);
+          print("Credentials saved");
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -196,7 +186,7 @@ class TabBarHome extends StatelessWidget {
     return MaterialApp(
       home: DefaultTabController(
         length: 3,
-        child: Scaffold(
+        child: Scaffold(appBar: AppBar(title: const Text("Cheep for Twitter")),
           bottomNavigationBar: TabBar(
               tabs: [
                 Tab(icon: Icon(Icons.home)),
@@ -258,7 +248,7 @@ Future<dynamic> getUserInfo(client){
 }
 
 Future<dynamic> getUserTimeline(client){
-  return client.get('https://api.twitter.com/1.1/statuses/home_timeline.json').then((res) {
+  return client.get('https://api.twitter.com/1.1/statuses/user_timeline.json').then((res) {
       return res;
   });
 }
@@ -286,9 +276,10 @@ getUserProfile(client){
                           children: <Widget>[
                             Card(child:
                               Padding(padding: EdgeInsets.all(9),child:
-                                Column(crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    ClipOval(
+                                Center(
+                                  child:Column(children: <Widget>[
+                                    Column(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: <Widget>[
+                                      ClipOval(
                                       child: Image.network(
                                           data['profile_image_url'].replaceAll(new RegExp(r'normal'), '200x200'),
                                           height: 100,
@@ -298,12 +289,66 @@ getUserProfile(client){
                                       ),
                                     Text("@"+data['screen_name']),
                                     Text(data['name'], style: new TextStyle(fontWeight: FontWeight.bold)),
-                                    Text(data['followers_count'].toString()+" Followers"),
-                                    Text(data['friends_count'].toString()+ " Following")
-                                    ]
+                                      ]
+                                    ),
+                                    Row(mainAxisAlignment: MainAxisAlignment.spaceAround,children: <Widget>[
+                                      Text(data['followers_count'].toString()+" Followers"),
+                                      Text(data['friends_count'].toString()+ " Following")
+                                      ]
+                                    )
+                                    ],)
                                   ),
                                 ),
                               ),
+                            FutureBuilder(
+                              future: getUserTimeline(client),
+                              builder: (context, snapshot){
+                                List<dynamic> userTweets = json.decode(snapshot.data.body);
+
+                                List<Widget> list = new List<Widget>();
+                                userTweets.forEach((tweet){
+                                  Map<String, dynamic> userData = tweet['user'];
+                                  list.add(Card(
+                                    child: Padding(padding: EdgeInsets.all(9),
+                                      child:Row(children: <Widget>[
+                                          Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0), child:
+                                            ClipOval(
+                                              child: Image.network(
+                                                userData['profile_image_url'].replaceAll(new RegExp(r'normal'), '200x200'),
+                                                height: 50,
+                                                width: 50,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                        Expanded(child: 
+                                          Column(crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text(userData['name'].toString(), style: TextStyle(fontWeight: FontWeight.bold),),
+                                              Text(tweet['text'].toString()),
+                                              ]
+                                            )
+                                          )
+                                          ]
+                                        )
+                                      )
+                                    )
+                                  );
+                                  
+
+                                  // list.add(Card(
+                                  //   child: Padding(padding: EdgeInsets.all(9),
+                                  //     child:Row(children: <Widget>[
+                                  //       Expanded(child:new Text(userData.toString()))
+                                  //         ]
+                                  //       )
+                                  //     )
+                                  //   )
+                                  // );
+                                });
+                                return new Column(children: list);
+                              },
+                            )
                             ],
                           )
                         );
