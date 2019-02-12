@@ -8,6 +8,7 @@ import 'package:oauth1/oauth1.dart' as oauth1;
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cheep_for_twitter/tweet.dart';
 
 Twitterapi api = new Twitterapi();
 
@@ -201,7 +202,8 @@ class TabBarHome extends StatelessWidget {
             ),
           body: TabBarView(
             children: [
-              new Container(color: Colors.green),
+              new Container(color: Colors.green,
+                child: getHomeTimeline(client)),
               new Container(color: Colors.white, 
                 child: getUserProfile(client)
               ),
@@ -253,6 +255,12 @@ Future<dynamic> getUserTimeline(client){
   });
 }
 
+Future<dynamic> getHomeTimelineInfo(client){
+  return client.get('https://api.twitter.com/1.1/statuses/home_timeline.json').then((res) {
+      return res;
+  });
+}
+
 // Second Tab for the user profile
 getUserProfile(client){
   return LayoutBuilder(
@@ -270,7 +278,6 @@ getUserProfile(client){
                     future: getUserInfo(client),
                     builder: (context, snapshot){
                       Map<String, dynamic> data = json.decode(snapshot.data.body);
-                      
                       return Container(child:
                         Column(crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
@@ -307,14 +314,33 @@ getUserProfile(client){
 
                                 List<Widget> list = new List<Widget>();
                                 userTweets.forEach((tweet){
-                                  Map<String, dynamic> userData = tweet['user'];
+                                  // Map<String, dynamic> userData = tweet['retweeted_status'];
+                                  var t = Tweet.fromJson(tweet);
+
+                                  var image, name, username, text, retweet;
+                                  if(t.retweet_status == null){
+                                    text = t.text;
+                                    image = t.user['profile_image_url'];
+                                    name = t.user['name'];
+                                    username = t.user['screen_name'];
+                                    retweet = "Retweet";
+                                  }
+                                  else {
+                                    text = t.retweet_status['text'];
+                                    image = t.retweet_status['user']['profile_image_url'];
+                                    name = t.retweet_status['user']['name'];
+                                    username = t.retweet_status['user']['screen_name'];
+                                    retweet = "";
+                                  }
+                                  print(t.retweet_status);
+
                                   list.add(Card(
                                     child: Padding(padding: EdgeInsets.all(9),
                                       child:Row(children: <Widget>[
                                           Padding(padding: EdgeInsets.fromLTRB(0, 0, 10, 0), child:
                                             ClipOval(
                                               child: Image.network(
-                                                userData['profile_image_url'].replaceAll(new RegExp(r'normal'), '200x200'),
+                                                image.replaceAll(new RegExp(r'normal'), '200x200'),
                                                 height: 50,
                                                 width: 50,
                                                 fit: BoxFit.cover,
@@ -324,8 +350,11 @@ getUserProfile(client){
                                         Expanded(child: 
                                           Column(crossAxisAlignment: CrossAxisAlignment.start,
                                             children: <Widget>[
-                                              Text(userData['name'].toString(), style: TextStyle(fontWeight: FontWeight.bold),),
-                                              Text(tweet['text'].toString()),
+                                              Row(children: <Widget>[
+                                                Text(name, style: TextStyle(fontWeight: FontWeight.bold),),
+                                                Text(" @"+username, style: TextStyle(color: Colors.grey),)
+                                                ]),
+                                              Text(text)
                                               ]
                                             )
                                           )
@@ -362,4 +391,8 @@ getUserProfile(client){
       );
     },
   );
+}
+
+getHomeTimeline(client){
+  
 }
