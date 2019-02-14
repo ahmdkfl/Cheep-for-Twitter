@@ -15,8 +15,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  twitter:
-    git: git://github.com/sh4869/twitter.dart.git
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
@@ -30,13 +28,15 @@ dev_dependencies:
   flutter_inappbrowser: ^0.5.51
   html: any
   shared_preferences: ^0.5.0
-
+  flutter_launcher_icons: ^0.7.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
+  assets:
+  - assets/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -73,3 +73,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.io/custom-fonts/#from-packages
+
+flutter_icons:
+  android: "launcher_icon" 
+  ios: true
+  image_path: "assets/Twitter_Social_Icon_Circle_Color.png"
