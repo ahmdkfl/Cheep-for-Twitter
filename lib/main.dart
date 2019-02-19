@@ -5,8 +5,8 @@ import 'package:oauth1/oauth1.dart' as oauth1;
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cheep_for_twitter/tweet1.dart';
-import 'package:cheep_for_twitter/TweetCard.dart';
+import 'package:cheep_for_twitter/tweet.dart';
+import 'package:cheep_for_twitter/tweet_card.dart';
 
 Twitterapi api = new Twitterapi();
 
