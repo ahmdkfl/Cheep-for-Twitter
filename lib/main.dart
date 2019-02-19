@@ -9,6 +9,8 @@ import 'package:oauth1/oauth1.dart' as oauth1;
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:cheep_for_twitter/tweet.dart';
 import 'package:cheep_for_twitter/tweet_card.dart';
+import 'package:cheep_for_twitter/user_profile.dart';
+import 'package:cheep_for_twitter/home_timeline.dart';
 
 Twitterapi api = new Twitterapi();
 
@@ -210,9 +212,9 @@ class TabBarHome extends StatelessWidget {
           body: TabBarView(
             children: [
               new Container(color: Colors.white,
-                child: getHomeTimeline(client)),
+                child: HomeTimeline(client)),
               new Container(color: Colors.white, 
-                child: getUserProfile(client)
+                child: UserProfile(client)
               ),
               new Container(color: Colors.green)
             ],
@@ -236,24 +238,6 @@ Future<String> _getCredentials() async {
   return cred;
 }
 
-Future<dynamic> getUserInfo(client){
-  return client.get('https://api.twitter.com/1.1/account/verify_credentials.json').then((res) {
-      return res;
-  });
-}
-
-Future<dynamic> getUserTimeline(client){
-  return client.get('https://api.twitter.com/1.1/statuses/user_timeline.json').then((res) {
-      return res;
-  });
-}
-
-Future<dynamic> getHomeTimelineInfo(client){
-  return client.get('https://api.twitter.com/1.1/statuses/home_timeline.json?count=200').then((res) {
-      return res;
-  });
-}
-
 Future<dynamic> getProfileBanner(client){
   return client.get('https://api.twitter.com/1.1/users/profile_banner.json').then((res) {
       return res;
@@ -272,110 +256,6 @@ returnBanner(client){
         fit: BoxFit.cover,
         );
     },
-  );
-}
-
-getHomeTimeline(client){
-
-  return Container(
-    child: FutureBuilder(
-      future: getHomeTimelineInfo(client),
-      builder: (context, snapshot){
-        if(snapshot.connectionState == ConnectionState.done){
-          List<dynamic> userTweets = json.decode(snapshot.data.body);
-
-          List<Widget> list = new List<Widget>();
-          userTweets.forEach((tweet){
-            Map<String, dynamic> userData = tweet['retweeted_status'];
-            var t = Tweet.fromJson(tweet);
-            list.add(TweetCard.fromTweet(t));
-          });
-          return ListView.builder(
-            itemCount: list.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: list[index],
-              );
-            },
-          );
-          }
-        else
-          return Column(children: <Widget>[CircularProgressIndicator()]);
-      },
-    ),
-  );
-}
-
-getUserProfile(client){
-  return ListView(shrinkWrap: true,
-    children: <Widget>[
-      Container(
-        child: FutureBuilder(
-          future: getUserInfo(client),
-          builder: (context, snapshot){
-            if(snapshot.connectionState == ConnectionState.done){
-              Map<String, dynamic> data = json.decode(snapshot.data.body);
-              return Container(child:
-                Column(crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Card(child:
-                      Padding(padding: EdgeInsets.all(9),child:
-                        Center(
-                          child:Column(children: <Widget>[
-                            Column(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: <Widget>[
-                              ClipOval(
-                              child: Image.network(
-                                  data['profile_image_url'].replaceAll(new RegExp(r'normal'), '200x200'),
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            Text("@"+data['screen_name']),
-                            Text(data['name'], style: new TextStyle(fontWeight: FontWeight.bold)),
-                              ]
-                            ),
-                            Row(mainAxisAlignment: MainAxisAlignment.spaceAround,children: <Widget>[
-                              Text(data['followers_count'].toString()+" Followers"),
-                              Text(data['friends_count'].toString()+ " Following")
-                              ]
-                            )
-                            ],)
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                );
-              }
-              else
-                return Column(children: <Widget>[CircularProgressIndicator()]);
-          },
-        ),
-      ),
-      Container(child:
-        FutureBuilder(
-          future: getUserTimeline(client),
-          builder: (context, snapshot){
-            if(snapshot.connectionState == ConnectionState.done){
-              List<dynamic> userTweets = json.decode(snapshot.data.body);
-
-              List<Widget> list = new List<Widget>();
-              userTweets.forEach((tweet){
-                var t = Tweet.fromJson(tweet);
-                print(tweet);
-                TweetCard r = TweetCard.fromTweet(t);
-                list.add(r);
-                // list.add(Text(tweet.toString()));
-              });
-              return new Column(children: list);
-              }
-            else
-              return Column(children: <Widget>[CircularProgressIndicator()]);
-          },
-        )
-      )
-    ],
   );
 }
 
