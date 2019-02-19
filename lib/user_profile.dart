@@ -19,7 +19,7 @@ class UserProfile extends StatefulWidget {
   
 }
 
-class UserProfileState extends State<UserProfile> {
+class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientMixin {
 
   var _client;
 
@@ -35,76 +35,79 @@ class UserProfileState extends State<UserProfile> {
   @override
   Widget build(BuildContext context) {
     return ListView(shrinkWrap: true,
-    children: <Widget>[
-      Container(
-        child: FutureBuilder(
-          future: _getUserInfo(_client),
-          builder: (context, snapshot){
-            if(snapshot.connectionState == ConnectionState.done){
-              Map<String, dynamic> data = json.decode(snapshot.data.body);
-              return Container(child:
-                Column(crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Card(child:
-                      Padding(padding: EdgeInsets.all(9),child:
-                        Center(
-                          child:Column(children: <Widget>[
-                            Column(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: <Widget>[
-                              ClipOval(
-                              child: Image.network(
-                                  data['profile_image_url'].replaceAll(new RegExp(r'normal'), '200x200'),
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
+      children: <Widget>[
+        Container(
+          child: FutureBuilder(
+            future: _getUserInfo(_client),
+            builder: (context, snapshot){
+              if(snapshot.connectionState == ConnectionState.done){
+                Map<String, dynamic> data = json.decode(snapshot.data.body);
+                return Container(child:
+                  Column(crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Card(child:
+                        Padding(padding: EdgeInsets.all(9),child:
+                          Center(
+                            child:Column(children: <Widget>[
+                              Column(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: <Widget>[
+                                ClipOval(
+                                child: Image.network(
+                                    data['profile_image_url'].replaceAll(new RegExp(r'normal'), '200x200'),
+                                    height: 100,
+                                    width: 100,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
+                              Text("@"+data['screen_name']),
+                              Text(data['name'], style: new TextStyle(fontWeight: FontWeight.bold)),
+                                ]
                               ),
-                            Text("@"+data['screen_name']),
-                            Text(data['name'], style: new TextStyle(fontWeight: FontWeight.bold)),
-                              ]
+                              Row(mainAxisAlignment: MainAxisAlignment.spaceAround,children: <Widget>[
+                                Text(data['followers_count'].toString()+" Followers"),
+                                Text(data['friends_count'].toString()+ " Following")
+                                ]
+                              )
+                              ],)
                             ),
-                            Row(mainAxisAlignment: MainAxisAlignment.spaceAround,children: <Widget>[
-                              Text(data['followers_count'].toString()+" Followers"),
-                              Text(data['friends_count'].toString()+ " Following")
-                              ]
-                            )
-                            ],)
                           ),
                         ),
-                      ),
-                    ],
-                  )
-                );
-              }
+                      ],
+                    )
+                  );
+                }
+                else
+                  return Column(children: <Widget>[CircularProgressIndicator()]);
+            },
+          ),
+        ),
+        Container(child:
+          FutureBuilder(
+            future: _getUserTimeline(_client),
+            builder: (context, snapshot){
+              if(snapshot.connectionState == ConnectionState.done){
+                List<dynamic> userTweets = json.decode(snapshot.data.body);
+
+                List<Widget> list = new List<Widget>();
+                userTweets.forEach((tweet){
+                  var t = Tweet.fromJson(tweet);
+                  print(tweet);
+                  TweetCard r = TweetCard.fromTweet(t);
+                  list.add(r);
+                  // list.add(Text(tweet.toString()));
+                });
+                return new Column(children: list);
+                }
               else
                 return Column(children: <Widget>[CircularProgressIndicator()]);
-          },
-        ),
-      ),
-      Container(child:
-        FutureBuilder(
-          future: _getUserTimeline(_client),
-          builder: (context, snapshot){
-            if(snapshot.connectionState == ConnectionState.done){
-              List<dynamic> userTweets = json.decode(snapshot.data.body);
-
-              List<Widget> list = new List<Widget>();
-              userTweets.forEach((tweet){
-                var t = Tweet.fromJson(tweet);
-                print(tweet);
-                TweetCard r = TweetCard.fromTweet(t);
-                list.add(r);
-                // list.add(Text(tweet.toString()));
-              });
-              return new Column(children: list);
-              }
-            else
-              return Column(children: <Widget>[CircularProgressIndicator()]);
-          },
+            },
+          )
         )
-      )
-    ],
-  );;
+      ],
+    );
   }
+  
+  @override
+  bool get wantKeepAlive => true;
 
   Future<dynamic> _getUserInfo(client){
   return client.get('https://api.twitter.com/1.1/account/verify_credentials.json').then((res) {

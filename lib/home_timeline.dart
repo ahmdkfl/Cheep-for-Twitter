@@ -19,7 +19,7 @@ class HomeTimeline extends StatefulWidget {
   
 }
 
-class HomeTimelineState extends State<HomeTimeline> {
+class HomeTimelineState extends State<HomeTimeline> with AutomaticKeepAliveClientMixin {
 
   var _client;
 
@@ -61,6 +61,9 @@ class HomeTimelineState extends State<HomeTimeline> {
       ),
     );
   }
+  
+  @override
+  bool get wantKeepAlive => true;
 
   Future<dynamic> _getHomeTimelineInfo(client){
     return client.get('https://api.twitter.com/1.1/statuses/home_timeline.json?count=200').then((res) {
