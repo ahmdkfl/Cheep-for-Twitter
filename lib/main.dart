@@ -28,10 +28,10 @@ void main() async {
       lauchScreen(TabBarHome(keys: credentials));
     }
     else
-      lauchScreen(MyApp());
+      lauchScreen(Login());
     });
 }
-class MyApp extends StatelessWidget {
+class Login extends StatelessWidget {
 
   var pinTextFieldController = TextEditingController();
 
