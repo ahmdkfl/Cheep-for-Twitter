@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:cheep_for_twitter/tweet.dart';
 import 'package:cheep_for_twitter/tweet_card.dart';
+import 'package:cheep_for_twitter/tweet_details.dart';
 
 class UserProfile extends StatefulWidget {
 
@@ -90,9 +91,16 @@ class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientM
                 List<Widget> list = new List<Widget>();
                 userTweets.forEach((tweet){
                   var t = Tweet.fromJson(tweet);
-                  print(tweet);
                   TweetCard r = TweetCard.fromTweet(t);
-                  list.add(r);
+                  list.add(
+                    GestureDetector(child: r,
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (_){
+                          return TweetDetails(tweet: t);
+                        }));
+                      },
+                    )
+                  );
                   // list.add(Text(tweet.toString()));
                 });
                 return new Column(children: list);

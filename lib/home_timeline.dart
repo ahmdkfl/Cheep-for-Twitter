@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:cheep_for_twitter/tweet.dart';
 import 'package:cheep_for_twitter/tweet_card.dart';
+import 'package:cheep_for_twitter/tweet_details.dart';
 
 class HomeTimeline extends StatefulWidget {
 
@@ -44,14 +45,21 @@ class HomeTimelineState extends State<HomeTimeline> with AutomaticKeepAliveClien
             List<Widget> list = new List<Widget>();
             userTweets.forEach((tweet){
               var t = Tweet.fromJson(tweet);
-              list.add(TweetCard.fromTweet(t));
+              list.add(
+                GestureDetector(
+                  child: TweetCard.fromTweet(t),
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (_){
+                      return TweetDetails(tweet: tweet);
+                    }));
+                  },
+                )
+              );
             });
             return ListView.builder(
               itemCount: list.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: list[index],
-                );
+                return list[index];
               },
             );
             }
