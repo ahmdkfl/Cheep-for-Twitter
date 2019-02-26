@@ -7,6 +7,7 @@ class Tweet {
   final int favoriteCount;
   final bool retweeted;
   final bool favorited;
+  final String inReplyStatusId;
   final Map<String, dynamic> user;
   final Map<String, dynamic> place;
   final Map<String, dynamic> entities;
@@ -15,7 +16,7 @@ class Tweet {
   final Map<String, dynamic> quotedStatus;
   final Map<String, dynamic> retweetedStatus;
 
-  Tweet({this.createAt, this.idStr, this.text, this.truncated, this.retweetCount, this.favoriteCount, this.retweeted, this.favorited, this.user, this.place, this.entities, this.extendedEntities, this.extendedTweet, this.quotedStatus, this.retweetedStatus});
+  Tweet({this.createAt, this.idStr, this.text, this.truncated, this.retweetCount, this.favoriteCount, this.retweeted, this.favorited, this.inReplyStatusId,this.user, this.place, this.entities, this.extendedEntities, this.extendedTweet, this.quotedStatus, this.retweetedStatus});
 
   factory Tweet.fromJson(Map<String, dynamic> usersjson) => Tweet(
       createAt: usersjson["create_at"] ?? null,
@@ -26,6 +27,7 @@ class Tweet {
       favoriteCount: usersjson['favorite_count'] ?? null,
       retweeted: usersjson['retweeted'] ?? null,
       favorited: usersjson['favorited'] ?? null,
+      inReplyStatusId: usersjson['in_reply_to_status_id_str'] ?? null,
       user: usersjson['user'] ?? null,
       place: usersjson['place'] ?? null,
       entities: usersjson['entities'] ?? null,
