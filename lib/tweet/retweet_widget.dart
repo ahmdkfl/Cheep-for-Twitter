@@ -4,27 +4,16 @@ import 'package:flutter/material.dart';
 
 class RetweetWidget extends StatefulWidget {
 
-  var retweeted, rcount;
+  var isRetweeted, retweetCount;
 
-  RetweetWidget(re, rc){
-    retweeted = re;
-    rcount = rc;
-  }
+  RetweetWidget({Key key, @required this.isRetweeted, @required this.retweetCount}):super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _RetweetWidgetState(retweeted, rcount);
+  State<StatefulWidget> createState() => _RetweetWidgetState();
 
 }
 
 class _RetweetWidgetState extends State<RetweetWidget> {
-
-  bool _isRetweeted;
-  int _retweetCount;
-
-  _RetweetWidgetState(re, rc){
-    _isRetweeted = re;
-    _retweetCount = rc;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,28 +22,28 @@ class _RetweetWidgetState extends State<RetweetWidget> {
         Container(
           child: IconButton(
             icon: Icon(Icons.repeat),
-            color: (_isRetweeted ? Colors.blue : Colors.grey),
-            onPressed: _toggleFavorite,
+            color: (widget.isRetweeted ? Colors.blue : Colors.grey),
+            iconSize: 18,
+            onPressed: _toggleRetweet,
           )
         ),
         SizedBox(
-          width: 40,
           child: Container(
-            child: Text('$_retweetCount'),
+            child: Text('${widget.retweetCount}', overflow: TextOverflow.fade),
           ),
         ),
       ],
     );
   }
 
-  _toggleFavorite(){
+  _toggleRetweet(){
     setState(() {
-     if (_isRetweeted) {
-        _retweetCount -= 1;
-        _isRetweeted = false;
+     if (widget.isRetweeted) {
+        widget.retweetCount -= 1;
+        widget.isRetweeted = false;
       } else {
-        _retweetCount += 1;
-        _isRetweeted = true;
+        widget.retweetCount += 1;
+        widget.isRetweeted = true;
       } 
     });
   }

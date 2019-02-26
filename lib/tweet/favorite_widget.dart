@@ -4,27 +4,16 @@ import 'package:flutter/material.dart';
 
 class FavoriteWidget extends StatefulWidget {
 
-  var favorite, fcount;
+  var isFavorited, favoriteCount;
 
-  FavoriteWidget(fa, fc){
-    favorite = fa;
-    fcount = fc;
-  }
+  FavoriteWidget({Key key, @required this.isFavorited, @required this.favoriteCount}):super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _FavoriteWidgetState(favorite, fcount);
+  State<StatefulWidget> createState() => _FavoriteWidgetState();
 
 }
 
 class _FavoriteWidgetState extends State<FavoriteWidget> {
-
-  bool _isFavorited;
-  int _favoriteCount;
-
-  _FavoriteWidgetState(fa, fc){
-    _isFavorited = fa;
-    _favoriteCount = fc;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,15 +21,15 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
       children: <Widget>[
         Container(
           child: IconButton(
-            icon: (_isFavorited? Icon(Icons.favorite): Icon(Icons.favorite_border)),
+            icon: (widget.isFavorited? Icon(Icons.favorite): Icon(Icons.favorite_border)),
+            iconSize: 18,
             color: Colors.red,
             onPressed: _toggleFavorite,
           )
         ),
         SizedBox(
-          width: 40,
           child: Container(
-            child: Text('$_favoriteCount'),
+            child: Text('${widget.favoriteCount}',overflow: TextOverflow.fade),
           ),
         ),
       ],
@@ -49,12 +38,12 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
 
   _toggleFavorite(){
     setState(() {
-     if (_isFavorited) {
-        _favoriteCount -= 1;
-        _isFavorited = false;
+     if (widget.isFavorited) {
+        widget.favoriteCount -= 1;
+        widget.isFavorited = false;
       } else {
-        _favoriteCount += 1;
-        _isFavorited = true;
+        widget.favoriteCount += 1;
+        widget.isFavorited = true;
       } 
     });
   }
