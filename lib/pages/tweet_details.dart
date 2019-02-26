@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:cheep_for_twitter/tweet/tweet.dart';
 import 'package:cheep_for_twitter/tweet/tweet_card4.dart';
-import 'package:cheep_for_twitter/tweet/favorite_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'dart:convert';

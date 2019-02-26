@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
-import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:cheep_for_twitter/tweet/tweet.dart';
 import 'package:cheep_for_twitter/tweet/tweet_card4.dart';
 import 'package:cheep_for_twitter/pages/tweet_details.dart';
@@ -113,7 +112,7 @@ class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientM
   bool get wantKeepAlive => true;
 
   Future<dynamic> _getUserInfo(client) async {
-  return await client.get('https://api.twitter.com/1.1/account/verify_credentials.json')
+    return await client.get('https://api.twitter.com/1.1/account/verify_credentials.json');
   }
 
   Future<dynamic> _getUserTimeline(client) async {

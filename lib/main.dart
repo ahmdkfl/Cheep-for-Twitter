@@ -1,33 +1,29 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:oauth1/oauth1.dart' as oauth1;
 
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:cheep_for_twitter/tab_bar_home.dart';
 import 'package:cheep_for_twitter/login_page.dart';
-import 'package:cheep_for_twitter/tweet/tweet_card2.dart';
 
-Twitterapi api = new Twitterapi();
+Twitterapi twitterApi = new Twitterapi();
 
 void main() async {
-  var lauchScreen = (screen){ return runApp(MaterialApp(
+  var lauchScreen = (screen){
+    return runApp(MaterialApp(
         title: 'Cheep for Twitter',
         theme: new ThemeData(primaryColor: Colors.blue),
         home: screen
           ),
         );
     };
-  
-  _getCredentials().then((credentials){
-    if(credentials!= null){
-      lauchScreen(TabBarHome(credentials));
-    }
-    else
-      lauchScreen(Login());
-    });
+
+  var credentials = await _getCredentials();
+  if(credentials != null)
+    lauchScreen(TabBarHome(credentials));
+  else
+    lauchScreen(Login());
 }
 class Login extends StatelessWidget {
 
@@ -47,8 +43,8 @@ class Login extends StatelessWidget {
       textColor: Colors.blue,
       color: Colors.white,
       onPressed: () {
-        api.getURI().then((res){
-          return api.getAuth().getResourceOwnerAuthorizationURI(res.credentials.token);
+        twitterApi.getURI().then((res){
+          return twitterApi.getAuth().getResourceOwnerAuthorizationURI(res.credentials.token);
         }).then((address){
           Navigator.push(
             context,
@@ -65,7 +61,7 @@ class Login extends StatelessWidget {
       color: Colors.white,
       onPressed: (){
 
-        api.getToken(pinTextFieldController.text).then((res){
+        twitterApi.getToken(pinTextFieldController.text).then((res){
           _setCredentials(res).then((commited){
           print("Credentials saved");
           Navigator.push(
@@ -117,30 +113,30 @@ class Login extends StatelessWidget {
     );
   }
 
-  _lauchLoginPage(context){
-    api.getURI().then((res){
-      return api.getAuth().getResourceOwnerAuthorizationURI(res.credentials.token);
-    }).then((address){
+  _lauchLoginPage(context) async {
+    var requestUrl = await twitterApi.getURI();
+    var url = await twitterApi.getAuth().getResourceOwnerAuthorizationURI(requestUrl.credentials.token);
+    if(url != null){
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => LoginPage(address: address),
+            builder: (context) => LoginPage(address: url),
       ));
-    });      
+    }
   }
 
-  _verifyCode(context){
-    api.getToken(pinTextFieldController.text).then((res){
-      _setCredentials(res).then((commited){
+  _verifyCode(context) async {
+    var token = await twitterApi.getToken(pinTextFieldController.text);
+    if(await _setCredentials(token)){
       print("Credentials saved");
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => TabBarHome(res.credentials.toString()),
+            builder: (context) => TabBarHome(token.credentials.toString()),
         ));
-      });
-    });
+    }
   }
+
 }
 
 Future<bool> _setCredentials(res) async {
@@ -155,4 +151,3 @@ Future<String> _getCredentials() async {
 	String cred = prefs.getString("credentials");
   return cred;
 }
-

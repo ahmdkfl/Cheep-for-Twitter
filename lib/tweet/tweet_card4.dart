@@ -5,14 +5,11 @@ import 'package:cheep_for_twitter/tweet/tweet.dart';
 import 'package:cheep_for_twitter/tweet/favorite_widget.dart';
 import 'package:cheep_for_twitter/tweet/retweet_widget.dart';
 import 'package:cheep_for_twitter/tweet/reply_widget.dart';
-import 'package:cheep_for_twitter/pages/link_page.dart';
 import 'package:cheep_for_twitter/pages/image_zoom.dart';
-import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cheep_for_twitter/tweet/tweet.dart';
 
 
 class TweetCard extends StatefulWidget {
