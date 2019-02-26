@@ -4,34 +4,27 @@ import 'package:flutter/material.dart';
 
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:cheep_for_twitter/tweet/tweet.dart';
-import 'package:cheep_for_twitter/tweet/tweet_card.dart';
+import 'package:cheep_for_twitter/tweet/tweet_card4.dart';
 import 'package:cheep_for_twitter/pages/tweet_details.dart';
 
 class UserProfile extends StatefulWidget {
 
-  var _client;
+  var client;
 
-  UserProfile(client){
-    _client = client;
-  }
+  UserProfile({Key, key, @required this.client}):super(key: key);
 
   @override
-  State<StatefulWidget> createState() => UserProfileState(_client);
+  State<StatefulWidget> createState() => UserProfileState();
   
 }
 
 class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientMixin {
 
-  var _client;
   Future<dynamic> _loadUserTime;
-
-  UserProfileState(c){
-    _client = c;
-  }
 
   @override
   void initState() {
-    _loadUserTime = _getUserTimeline(_client);
+    _loadUserTime = _getUserTimeline(widget.client);
     super.initState();
   }
 
@@ -41,7 +34,7 @@ class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientM
       children: <Widget>[
         Container(
           child: FutureBuilder(
-            future: _getUserInfo(_client),
+            future: _getUserInfo(widget.client),
             builder: (context, snapshot){
               if(snapshot.connectionState == ConnectionState.done){
                 Map<String, dynamic> data = json.decode(snapshot.data.body);
@@ -93,7 +86,7 @@ class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientM
                 List<Widget> list = new List<Widget>();
                 userTweets.forEach((tweet){
                   var t = Tweet.fromJson(tweet);
-                  TweetCard r = TweetCard.fromTweet(t);
+                  TweetCard r = TweetCard(tweet:t);
                   list.add(
                     GestureDetector(child: r,
                       onTap: (){
@@ -119,16 +112,12 @@ class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientM
   @override
   bool get wantKeepAlive => true;
 
-  Future<dynamic> _getUserInfo(client){
-  return client.get('https://api.twitter.com/1.1/account/verify_credentials.json').then((res) {
-      return res;
-  });
-}
+  Future<dynamic> _getUserInfo(client) async {
+  return await client.get('https://api.twitter.com/1.1/account/verify_credentials.json')
+  }
 
-  Future<dynamic> _getUserTimeline(client){
-    return client.get('https://api.twitter.com/1.1/statuses/user_timeline.json').then((res) {
-        return res;
-    });
+  Future<dynamic> _getUserTimeline(client) async {
+    return await client.get('https://api.twitter.com/1.1/statuses/user_timeline.json');
   }
   
 }
