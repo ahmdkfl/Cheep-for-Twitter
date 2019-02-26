@@ -5,6 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:cheep_for_twitter/tweet/tweet.dart';
 import 'package:cheep_for_twitter/tweet/favorite_widget.dart';
 import 'package:cheep_for_twitter/tweet/retweet_widget.dart';
+import 'package:cheep_for_twitter/pages/link_page.dart';
+import 'package:cheep_for_twitter/pages/image_zoom.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -133,8 +135,8 @@ class TweetCard extends Card {
                       children: _getTweetImages(context)
                     ),
                     Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
-                      RetweetWidget(retweeted, retweetCount),
-                      FavoriteWidget(favorited, favoriteCount),
+                      RetweetWidget(isRetweeted: retweeted, retweetCount:retweetCount),
+                      FavoriteWidget(isFavorited: favorited, favoriteCount: favoriteCount),
                       Row(children: <Widget>[
                         Icon(Icons.reply, size: 15),
                         Text(repliesCount.toString())
@@ -170,52 +172,7 @@ class TweetCard extends Card {
     });
     return list;
   }
+  
 }
 
-class LinkPage extends StatelessWidget {
 
-  final String address;
-
-  LinkPage({Key key, @required this.address}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-
-    var authorizePage = new WebviewScaffold(
-      url: address,
-      appBar: new AppBar(
-        title: new Text("Cheep Login"),
-      ),
-    );
-
-    return authorizePage;
-  }
-}
-
-class ImageZoom extends StatelessWidget {
-
-  final String url;
-
-  ImageZoom({Key key, @required this.url}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: new AppBar(),
-      body: GestureDetector(
-        child: Center(
-          child: Hero(
-            tag: url,
-            child: CachedNetworkImage(
-              placeholder: CircularProgressIndicator(),
-              imageUrl:url
-            ),
-          ),
-        ),
-        onTap: () {
-          Navigator.pop(context);
-        },
-      ),
-    );
-  }
-}
