@@ -56,9 +56,9 @@ class _TabBarHomeState extends State<TabBarHome> {
           body: TabBarView(
             children: [
               new Container(color: Colors.white,
-                child: HomeTimeline(client)),
+                child: HomeTimeline(client: client,)),
               new Container(color: Colors.white, 
-                child: UserProfile(client)
+                child: UserProfile(client: client)
               ),
               new Container(color: Colors.green)
             ],
