@@ -1,7 +1,9 @@
 
 import 'package:flutter/material.dart';
 
-
+/// Favourite icon
+/// 
+/// Contains the count for the favourite tweet and the if it is favourited by the user
 class FavoriteWidget extends StatefulWidget {
 
   var isFavorited, favoriteCount;
@@ -13,20 +15,24 @@ class FavoriteWidget extends StatefulWidget {
 
 }
 
+/// Stateful Widget for the Favourite widget
 class _FavoriteWidgetState extends State<FavoriteWidget> {
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
+        // Favorite icon
         Container(
           child: IconButton(
+            // Display empty or favourite icon if favourite is true or false
             icon: (widget.isFavorited? Icon(Icons.favorite): Icon(Icons.favorite_border)),
             iconSize: 18,
             color: Colors.red,
             onPressed: _toggleFavorite,
           )
         ),
+        // Count of the favourite tweet
         SizedBox(
           child: Container(
             child: Text('${widget.favoriteCount}',overflow: TextOverflow.fade),
@@ -36,9 +42,11 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
     );
   }
 
+  /// Toggle the favorite icon and change the count of the favourite tweet
   _toggleFavorite(){
     setState(() {
-     if (widget.isFavorited) {
+      // Change the favourite count and the favourite value whether the tweet is liked or not
+      if (widget.isFavorited) {
         widget.favoriteCount -= 1;
         widget.isFavorited = false;
       } else {

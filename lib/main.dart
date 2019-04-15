@@ -25,6 +25,8 @@ void main() async {
   else
     lauchScreen(Login());
 }
+
+/// Ask the user to login with the Twitter credentials.
 class Login extends StatelessWidget {
 
   var pinTextFieldController = TextEditingController();
@@ -37,6 +39,8 @@ class Login extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    // Create a login button for the user to login
     var loginButton = RaisedButton(
       child: Text("Login with Twitter"),
       padding: const EdgeInsets.all(8.0),
@@ -54,16 +58,20 @@ class Login extends StatelessWidget {
         });            
       },
     );
+
+    // Create a button which when pressed verifies the login code given from the login page
     var sendPinButton = RaisedButton(
       child: Text("Verify Code"),
       padding: const EdgeInsets.all(8.0),
       textColor: Colors.blue,
       color: Colors.white,
       onPressed: (){
-
+        // Retrieve the code from the text field
         twitterApi.getToken(pinTextFieldController.text).then((res){
+          // Store the credentials on the device
           _setCredentials(res).then((commited){
           print("Credentials saved");
+          // Evoke the homepage screen for the user that logged in
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -94,6 +102,7 @@ class Login extends StatelessWidget {
                 // button("Login with Twitter", _lauchLoginPage(context)),
                 loginButton,
                 Container(padding: EdgeInsets.all(50), child:Container(child:
+                  // Text field that asks the user to input the successful login code
                   TextField(
                     decoration: InputDecoration(
                       hintText: 'Please enter PIN',
@@ -103,6 +112,7 @@ class Login extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),),
+                // Button that verifies the login code
                 sendPinButton,
                 // button("Verify Code", _verifyCode(context))
               ]

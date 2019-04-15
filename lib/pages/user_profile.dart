@@ -20,10 +20,12 @@ class UserProfile extends StatefulWidget {
 class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientMixin {
 
   Future<dynamic> _loadUserTime;
+  List<Widget> _cachedTweets;
 
   @override
   void initState() {
     _loadUserTime = _getUserTimeline(widget.client);
+    _cachedTweets = List<Widget>();
     super.initState();
   }
 
@@ -71,7 +73,7 @@ class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientM
                   );
                 }
                 else
-                  return Column(children: <Widget>[CircularProgressIndicator()]);
+                  return Center(child:CircularProgressIndicator());
             },
           ),
         ),
@@ -83,24 +85,26 @@ class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientM
                 List<dynamic> userTweets = json.decode(snapshot.data.body);
 
                 List<Widget> list = new List<Widget>();
-                userTweets.forEach((tweet){
-                  var t = Tweet.fromJson(tweet);
-                  TweetCard r = TweetCard(tweet:t);
-                  list.add(
-                    GestureDetector(child: r,
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (_){
-                          return TweetDetails(tweet: t);
-                        }));
-                      },
-                    )
-                  );
-                  // list.add(Text(tweet.toString()));
-                });
-                return new Column(children: list);
+                if(_cachedTweets.isEmpty){
+                  userTweets.forEach((tweet){
+                    var t = Tweet.fromJson(tweet);
+                    TweetCard r = TweetCard(tweet:t);
+                    list.add(
+                      GestureDetector(child: r,
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (_){
+                            return TweetDetails(tweet: t);
+                          }));
+                        },
+                      )
+                    );
+                  });
+                  _cachedTweets = list;
+                  }
+                return new Column(children: _cachedTweets);
                 }
               else
-                return Column(children: <Widget>[CircularProgressIndicator()]);
+                return Center(child:CircularProgressIndicator());
             },
           )
         )

@@ -3,36 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:cheep_for_twitter/pages/user_profile.dart';
 import 'package:cheep_for_twitter/pages/home_timeline.dart';
+import 'package:cheep_for_twitter/pages/settings.dart';
 
 class TabBarHome extends StatefulWidget {
 
-  var _keys;
+  var tokens;
 
-  TabBarHome(keys){
-    this._keys = keys;
-  }
+  TabBarHome(this.tokens);
 
   @override
-  State<StatefulWidget> createState() => _TabBarHomeState(_keys);
+  State<StatefulWidget> createState() => _TabBarHomeState();
 }
 
 class _TabBarHomeState extends State<TabBarHome> {
 
-  String keys;
   var client, api = Twitterapi();
-
-  _TabBarHomeState(keys){
-    this.keys = keys;
-  }
 
   @override
   void initState(){
-    var r = keys;
+    var r = widget.tokens;
     var r2 = r.split('=');
     var r3 = r2[1].split('&');
     var oauth_token_sec=r2[2];
     var oauth_token=r3[0];
     client = api.getAuthorClient(oauth_token, oauth_token_sec);
+    super.initState();
   }
 
   @override
@@ -40,7 +35,7 @@ class _TabBarHomeState extends State<TabBarHome> {
     return MaterialApp(
       home: DefaultTabController(
         length: 3,
-        child: Scaffold(appBar: AppBar(title: const Text("Cheep for Twitter"),centerTitle: true,),
+        child: Scaffold(appBar: AppBar(title: const Text("Cheep for Twitter"), centerTitle: true,),
           bottomNavigationBar: TabBar(
               tabs: [
                 Tab(icon: Icon(Icons.home)),
@@ -56,11 +51,14 @@ class _TabBarHomeState extends State<TabBarHome> {
           body: TabBarView(
             children: [
               new Container(color: Colors.white,
-                child: HomeTimeline(client: client,)),
+                child: HomeTimeline(client: client,)
+                ),
               new Container(color: Colors.white, 
                 child: UserProfile(client: client)
-              ),
-              new Container(color: Colors.green)
+                ),
+              new Container(color: Colors.white,
+                child: Settings()
+                )
             ],
           ),
         ),

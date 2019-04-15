@@ -61,70 +61,62 @@ class TweetCardState extends State<TweetCard> {
       ),
     );
 
-    return new Container(
-      child: Stack(
-        children: <Widget>[
-          tweetCard,
+    return 
           Container(
             margin: EdgeInsets.symmetric(horizontal: 15),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 isRetweeted(retweeted),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(child: 
-                      ClipOval(
-                        child: Image.network(
-                          image,
-                          height: 55,
-                          width: 55,
-                          fit: BoxFit.cover,
+                Container(margin: EdgeInsets.only(top: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Container(child: 
+                        ClipOval(
+                          child: Image.network(
+                            image,
+                            height: 55,
+                            width: 55,
+                            fit: BoxFit.cover,
+                          ),
                         ),
+                        margin: EdgeInsets.only(right: 10),
                       ),
-                      margin: EdgeInsets.only(right: 10),
-                    ),
-                    Expanded(
-                      child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 3),                      
-                        child:
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Row(children: <Widget>[
-                                Text(name, style: TextStyle(fontWeight: FontWeight.bold),),
-                                Text(" @"+userName, style: TextStyle(color: Colors.grey), overflow: TextOverflow.fade),
-                              ],),
-                              Container(
-                                margin: EdgeInsets.symmetric(horizontal: 0, vertical: 3.0),
-                                child: 
-                                  Text(text,softWrap: true,),
-                              ),
-                              Column(
-                                children: _getTweetImages()
-                              ),
-                              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  ReplyWidget(isReplied: false, replyCount: 2),
-                                  RetweetWidget(isRetweeted: retweeted, retweetCount: retweetCount),
-                                  FavoriteWidget(isFavorited: favorited, favoriteCount: favoriteCount),
-                                  FavoriteWidget(isFavorited: true, favoriteCount: 13),
-                                ],
-                              )
-                            ],
-                        ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(children: <Widget>[
+                              Text(name, style: TextStyle(fontWeight: FontWeight.bold),),
+                              Text(" @"+userName, style: TextStyle(color: Colors.grey), overflow: TextOverflow.fade),
+                            ],),
+                            Container(
+                              margin: EdgeInsets.symmetric(vertical: 3.0),
+                              child: 
+                                Text(text,softWrap: true,),
+                            ),
+                            Column(
+                              children: _getTweetImages()
+                            ),
+                            Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                ReplyWidget(isReplied: false, replyCount: 2),
+                                RetweetWidget(isRetweeted: retweeted, retweetCount: retweetCount),
+                                FavoriteWidget(isFavorited: favorited, favoriteCount: favoriteCount),
+                                FavoriteWidget(isFavorited: true, favoriteCount: 13),
+                              ],
+                            )
+                          ],
+                          )
                       )
-                    )
-                  ]
+                    ]
+                  ),
                 ),
-                Divider(height: 20,)
+                Divider(height: 5)
               ],
             ),
-          )
-        ],
-      ),
-    );
+          );
   }
 
   Widget isRetweeted(ret){

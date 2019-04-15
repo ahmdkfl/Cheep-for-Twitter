@@ -1,48 +1,61 @@
 import 'package:oauth1/oauth1.dart' as oauth1;
 import 'dart:async';
 
+/// Contains the platform, clientCredentials, auth, apiKey and apiSecret
+/// 
+/// This class utilises the oauth1 plugin. The platform requests from the Twitter API the requestes the are needed.
+/// The clientCredentials class contains the apiKey and the apiSecret. Both classes make up an authorization request.
 class Twitterapi {
-  var platform;
-  static const String apiKey = '***REMOVED***';
-  static const String apiSecret =
+  var _platform;
+  static const String _apiKey = '***REMOVED***';
+  static const String _apiSecret =
       '***REMOVED***';
-  var clientCredentials;
-  var auth;
-  var authorizationResult;
+  var _clientCredentials;
+  var _auth;
+  var _authorizationResult;
 
+  /// Create instances of platform, client credentials and authorization
   Twitterapi() {
-    platform = oauth1.Platform(
+    _platform = oauth1.Platform(
         'https://api.twitter.com/oauth/request_token', // temporary credentials request
         'https://api.twitter.com/oauth/authorize', // resource owner authorization
         'https://api.twitter.com/oauth/access_token', // token credentials request
         oauth1.SignatureMethods.HMAC_SHA1 // signature method
         );
-    clientCredentials = oauth1.ClientCredentials(apiKey, apiSecret);
-    auth = oauth1.Authorization(clientCredentials, platform);
+    _clientCredentials = oauth1.ClientCredentials(_apiKey, _apiSecret);
+    _auth = oauth1.Authorization(_clientCredentials, _platform);
   }
 
+  /// Returns the URL to sign in for the user credentials
+  /// 
+  /// The URL is returned as a Future from an asyncronous operation and the value returned is a String when 
+  /// the Future is processed
   Future<dynamic> getURI() async {
-    var request = await auth.requestTemporaryCredentials('oob');
-    authorizationResult = request;
+    var request = await _auth.requestTemporaryCredentials('oob');
+    _authorizationResult = request;
     return request;
   }
 
+  /// Verifies the PIN and returns token and secret_token
   getToken(code) {
-    return auth.requestTokenCredentials(authorizationResult.credentials, code);
+    return _auth.requestTokenCredentials(_authorizationResult.credentials, code);
   }
 
+  /// Return the current authorization request
   getAuth() {
-    return auth;
+    return _auth;
   }
 
+  /// Not needed
   getAuthClient() {
-    return oauth1.Client(platform.signatureMethod, clientCredentials,
-        authorizationResult.credentials);
+    return oauth1.Client(_platform.signatureMethod, _clientCredentials,
+        _authorizationResult.credentials);
   }
 
+  /// Return a client instance given a token and a secret token
   getAuthorClient(token, tokenSecret) {
     var credentials = oauth1.Credentials(token, tokenSecret);
     return oauth1.Client(
-        platform.signatureMethod, clientCredentials, credentials);
+        _platform.signatureMethod, _clientCredentials, credentials);
   }
 }

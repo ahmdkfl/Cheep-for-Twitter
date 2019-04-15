@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
 
@@ -18,10 +19,12 @@ class HomeTimeline extends StatefulWidget {
 class HomeTimelineState extends State<HomeTimeline>
     with AutomaticKeepAliveClientMixin {
   Future<dynamic> _loadHomeTimeline;
+  List<Widget> _cachedTweets;
 
   @override
   void initState() {
     _loadHomeTimeline = _getHomeTimelineInfo(widget.client);
+    _cachedTweets = List<Widget>();
     super.initState();
   }
 
@@ -35,25 +38,28 @@ class HomeTimelineState extends State<HomeTimeline>
             List<dynamic> userTweets = json.decode(snapshot.data.body);
 
             List<Widget> list = new List<Widget>();
-            userTweets.forEach((tweet) {
-              var t = Tweet.fromJson(tweet);
-              list.add(GestureDetector(
-                child: TweetCard(tweet: t),
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return TweetDetails(tweet: t);
-                  }));
-                },
-              ));
-            });
+            if(_cachedTweets.isEmpty){
+              userTweets.forEach((tweet) {
+                var t = Tweet.fromJson(tweet);
+                list.add(GestureDetector(
+                  child: TweetCard(tweet: t),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) {
+                      return TweetDetails(tweet: t);
+                    }));
+                  },
+                ));
+              });
+              _cachedTweets = list;
+              }
             return ListView.builder(
-              itemCount: list.length,
+              itemCount: _cachedTweets.length,
               itemBuilder: (context, index) {
-                return list[index];
+                return _cachedTweets[index];
               },
             );
           } else
-            return Column(children: <Widget>[CircularProgressIndicator()]);
+            return Center(child:CircularProgressIndicator());
         },
       ),
     );
