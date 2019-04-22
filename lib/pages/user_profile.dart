@@ -88,7 +88,7 @@ class UserProfileState extends State<UserProfile> with AutomaticKeepAliveClientM
                 if(_cachedTweets.isEmpty){
                   userTweets.forEach((tweet){
                     var t = Tweet.fromJson(tweet);
-                    TweetCard r = TweetCard(tweet:t);
+                    TweetCard r = TweetCard(tweet:t, client: widget.client);
                     list.add(
                       GestureDetector(child: r,
                         onTap: (){

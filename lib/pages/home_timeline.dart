@@ -42,7 +42,7 @@ class HomeTimelineState extends State<HomeTimeline>
               userTweets.forEach((tweet) {
                 var t = Tweet.fromJson(tweet);
                 list.add(GestureDetector(
-                  child: TweetCard(tweet: t),
+                  child: TweetCard(tweet: t, client: widget.client,),
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) {
                       return TweetDetails(tweet: t);
