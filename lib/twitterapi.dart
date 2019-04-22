@@ -20,7 +20,7 @@ class Twitterapi {
         'https://api.twitter.com/oauth/request_token', // temporary credentials request
         'https://api.twitter.com/oauth/authorize', // resource owner authorization
         'https://api.twitter.com/oauth/access_token', // token credentials request
-        oauth1.SignatureMethods.HMAC_SHA1 // signature method
+        oauth1.SignatureMethods.hmacSha1 // signature method
         );
     _clientCredentials = oauth1.ClientCredentials(_apiKey, _apiSecret);
     _auth = oauth1.Authorization(_clientCredentials, _platform);
