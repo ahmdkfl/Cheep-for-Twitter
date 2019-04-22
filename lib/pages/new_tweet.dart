@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:fluttertoast/fluttertoast.dart';
+
 class NewTweet extends StatefulWidget {
   var client;
 
@@ -42,6 +44,14 @@ class NewTweetState extends State<NewTweet> {
   _sendTweet() {
     var tweet = new Map();
     tweet['status'] = tweetTextFieldController.text.toString();
+    Fluttertoast.showToast(
+        msg: "Tweeting...",
+        toastLength: Toast.LENGTH_SHORT,
+        timeInSecForIos: 2,
+        backgroundColor: Colors.blue,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
     widget.client
         .post('https://api.twitter.com/1.1/statuses/update.json', body: tweet);
     Navigator.of(context).pop();
