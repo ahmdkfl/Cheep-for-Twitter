@@ -26,7 +26,7 @@ class Tweet {
       createAt: usersjson["create_at"] ?? null,
       idStr: usersjson["id_str"] ?? null,
       text: usersjson["text"] ?? null,
-      truncated: usersjson['truncated'] ?? null,
+      truncated: usersjson['truncated'],
       retweetCount: usersjson['retweet_count'] ?? null,
       favoriteCount: usersjson['favorite_count'] ?? null,
       retweeted: usersjson['retweeted'] ?? null,
