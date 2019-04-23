@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 
 class ReplyWidget extends StatefulWidget {
 
-  var isReplied, replyCount;
+  var isReplied;
 
-  ReplyWidget({Key key, @required this.isReplied, @required this.replyCount}):super(key: key);
+  ReplyWidget({Key key, @required this.isReplied}):super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ReplyWidgetState();
@@ -27,11 +27,6 @@ class _ReplyWidgetState extends State<ReplyWidget> {
             onPressed: _toggleReply,
           )
         ),
-        SizedBox(
-          child: Container(
-            child: Text('${widget.replyCount}',overflow: TextOverflow.fade),
-          ),
-        ),
       ],
     );
   }
@@ -39,10 +34,8 @@ class _ReplyWidgetState extends State<ReplyWidget> {
   _toggleReply(){
     setState(() {
      if (widget.isReplied) {
-        widget.replyCount -= 1;
         widget.isReplied = false;
       } else {
-        widget.replyCount += 1;
         widget.isReplied = true;
       } 
     });
