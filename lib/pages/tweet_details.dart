@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cheep_for_twitter/tweet/tweet.dart';
 import 'package:cheep_for_twitter/tweet/tweet_card4.dart';
+import 'package:cheep_for_twitter/tweet/tweet_card_details.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'dart:convert';
@@ -17,7 +18,7 @@ class TweetDetails extends StatelessWidget {
     return Scaffold(
       appBar: new AppBar(),
       body: Column(children: <Widget>[
-        TweetCard(tweet: tweet),
+        
         Expanded(child:FutureBuilder(
           future: _loadReplies(),
           builder: (context, snapshot){
@@ -25,6 +26,7 @@ class TweetDetails extends StatelessWidget {
               var tweets = snapshot.data['statuses'];
 
               List<Widget> list = new List<Widget>();
+              list.add(TweetCardDetials(tweet: tweet));
               tweets.forEach((tweetItem){
                 var t = Tweet.fromJson(tweetItem);
                 if(tweetItem['in_reply_to_status_id_str']==tweet.idStr)
