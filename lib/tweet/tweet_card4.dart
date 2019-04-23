@@ -111,14 +111,13 @@ class TweetCardState extends State<TweetCard> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
-                          ReplyWidget(isReplied: false, replyCount: 2),
+                          ReplyWidget(isReplied: false),
                           RetweetWidget(
                               isRetweeted: retweeted,
                               retweetCount: retweetCount),
                           FavoriteWidget(
                               isFavorited: favorited,
                               favoriteCount: favoriteCount),
-                          FavoriteWidget(isFavorited: true, favoriteCount: 13),
                         ],
                       )
                     ],
@@ -215,6 +214,10 @@ class TweetCardState extends State<TweetCard> {
           images.add(res['media_url_https']);
       });
     }
+    if (tweet.extendedTweet != null)
+      text = tweet.extendedTweet['full_text'];
+    else
+      text = tweet.text;
     if (tweet.retweetedStatus == null && !tweet.truncated) {
       userName = tweet.user['screen_name'];
       name = tweet.user['name'];
