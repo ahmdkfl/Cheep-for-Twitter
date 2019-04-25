@@ -1,10 +1,11 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-
+import 'package:cheep_for_twitter/pages/tweet_details.dart';
 import 'package:cheep_for_twitter/tweet/tweet.dart';
 import 'package:cheep_for_twitter/tweet/tweet_card4.dart';
-import 'package:cheep_for_twitter/pages/tweet_details.dart';
+import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Profile extends StatefulWidget {
   var client;
@@ -17,7 +18,7 @@ class Profile extends StatefulWidget {
   State<StatefulWidget> createState() => ProfileState();
 }
 
-class ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
+class ProfileState extends State<Profile> {
   Future<dynamic> _loadUserTime;
   List<Widget> _cachedTweets;
 
@@ -46,9 +47,9 @@ class ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                         color: Colors.white,
                         fontSize: 16.0,
                       )),
-                  background: Image.network(
-                    data['profile_banner_url'],
-                    fit: BoxFit.cover,
+                  background: CachedNetworkImage(
+                    imageUrl: data['profile_banner_url'],
+                    errorWidget: (context, url, error) => new Icon(Icons.error),
                   )),
             ),
           ];
@@ -71,9 +72,12 @@ class ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               ClipOval(
-                                child: Image.network(
-                                  data['profile_image_url'].replaceAll(
-                                      new RegExp(r'normal'), '200x200'),
+                                child: CachedNetworkImage(
+                                  imageUrl: data['profile_image_url']
+                                      .replaceAll(
+                                          new RegExp(r'normal'), '200x200'),
+                                  errorWidget: (context, url, error) =>
+                                      new Icon(Icons.error),
                                   height: 100,
                                   width: 100,
                                   fit: BoxFit.cover,
@@ -102,29 +106,26 @@ class ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
                 child: FutureBuilder(
               future: _loadUserTime,
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasData) {
                   List<dynamic> userTweets = json.decode(snapshot.data.body);
 
                   List<Widget> list = new List<Widget>();
-                  if (_cachedTweets.isEmpty) {
-                    userTweets.forEach((tweet) {
-                      var t = Tweet.fromJson(tweet);
-                      TweetCard r = TweetCard(tweet: t);
-                      list.add(GestureDetector(
-                        child: r,
-                        onTap: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (_) {
-                            return TweetDetails(tweet: t);
-                          }));
-                        },
-                      ));
-                    });
-                    _cachedTweets = list;
-                  }
+                  userTweets.forEach((tweet) {
+                    var t = Tweet.fromJson(tweet);
+                    TweetCard r = TweetCard(tweet: t, client: widget.client);
+                    list.add(GestureDetector(
+                      child: r,
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) {
+                          return TweetDetails(tweet: t);
+                        }));
+                      },
+                    ));
+                  });
+                  _cachedTweets = list;
                   return new Column(children: _cachedTweets);
                 } else
-                  return Center(child: CircularProgressIndicator());
+                  return Container(child: CircularProgressIndicator());
               },
             ))
           ],
@@ -132,9 +133,6 @@ class ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin {
       ),
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 
   Future<dynamic> _getUserTimeline(client) async {
     return await client.get(
