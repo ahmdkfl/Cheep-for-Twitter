@@ -1,10 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-
 class ImageZoom extends StatelessWidget {
-
   final String url;
 
   ImageZoom({Key key, @required this.url}) : super(key: key);
@@ -18,9 +15,10 @@ class ImageZoom extends StatelessWidget {
           child: Hero(
             tag: url,
             child: CachedNetworkImage(
-              placeholder: CircularProgressIndicator(),
-              imageUrl:url
-            ),
+                placeholder: (context, string) {
+                  return CircularProgressIndicator();
+                },
+                imageUrl: url),
           ),
         ),
         onTap: () {
