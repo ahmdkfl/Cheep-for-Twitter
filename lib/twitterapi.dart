@@ -2,17 +2,14 @@ import 'package:oauth1/oauth1.dart' as oauth1;
 import 'dart:async';
 
 /// Contains the platform, clientCredentials, auth, apiKey and apiSecret
-/// 
+///
 /// This class utilises the oauth1 plugin. The platform requests from the Twitter API the requestes the are needed.
 /// The clientCredentials class contains the apiKey and the apiSecret. Both classes make up an authorization request.
 class Twitterapi {
-  var _platform;
   static const String _apiKey = '***REMOVED***';
   static const String _apiSecret =
       '***REMOVED***';
-  var _clientCredentials;
-  var _auth;
-  var _authorizationResult;
+  var _platform, _clientCredentials, _auth, _authorizationResult;
 
   /// Create instances of platform, client credentials and authorization
   Twitterapi() {
@@ -27,8 +24,8 @@ class Twitterapi {
   }
 
   /// Returns the URL to sign in for the user credentials
-  /// 
-  /// The URL is returned as a Future from an asyncronous operation and the value returned is a String when 
+  ///
+  /// The URL is returned as a Future from an asyncronous operation and the value returned is a String when
   /// the Future is processed
   Future<dynamic> getURI() async {
     var request = await _auth.requestTemporaryCredentials('oob');
@@ -38,7 +35,8 @@ class Twitterapi {
 
   /// Verifies the PIN and returns token and secret_token
   getToken(code) {
-    return _auth.requestTokenCredentials(_authorizationResult.credentials, code);
+    return _auth.requestTokenCredentials(
+        _authorizationResult.credentials, code);
   }
 
   /// Return the current authorization request
