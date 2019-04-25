@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cheep_for_twitter/login.dart';
 
 class Settings extends StatefulWidget {
 
@@ -20,6 +21,11 @@ class SettingsState extends State<Settings> {
             child: Text("Logout"),
             onPressed: (){
               _removeCredentials();
+              Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Login(),
+              ));
             },
           ),
         )
