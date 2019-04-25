@@ -10,6 +10,7 @@ import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class TweetCardDetials extends StatefulWidget {
   Tweet tweet;
@@ -22,6 +23,7 @@ class TweetCardDetials extends StatefulWidget {
 }
 
 class TweetCardDetialsState extends State<TweetCardDetials> {
+  String createdAt;
   String image;
   String name;
   String userName;
@@ -66,8 +68,10 @@ class TweetCardDetialsState extends State<TweetCardDetials> {
               Container(
                 child: GestureDetector(
                   child: ClipOval(
-                    child: Image.network(
-                      image,
+                    child: CachedNetworkImage(
+                      imageUrl: image,
+                      errorWidget: (context, url, error) =>
+                          new Icon(Icons.error),
                       height: 55,
                       width: 55,
                       fit: BoxFit.cover,
@@ -90,7 +94,10 @@ class TweetCardDetialsState extends State<TweetCardDetials> {
                       name,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    Text(" @" + userName,
+                    Text("@" + userName,
+                        style: TextStyle(color: Colors.grey),
+                        overflow: TextOverflow.fade),
+                    Text(createdAt,
                         style: TextStyle(color: Colors.grey),
                         overflow: TextOverflow.fade),
                   ],
@@ -98,7 +105,7 @@ class TweetCardDetialsState extends State<TweetCardDetials> {
               ),
             ],
           ),
-          Container(margin: EdgeInsets.only(bottom: 8.0),child: Text(text)),
+          Container(margin: EdgeInsets.only(bottom: 8.0), child: Text(text)),
           Column(children: _getTweetImages()),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -134,7 +141,10 @@ class TweetCardDetialsState extends State<TweetCardDetials> {
             tag: image,
             child: Container(
               child: ClipRRect(
-                child: Image.network(image, fit: BoxFit.contain),
+                child: CachedNetworkImage(
+                    imageUrl: image,
+                    errorWidget: (context, url, error) => new Icon(Icons.error),
+                    fit: BoxFit.contain),
                 borderRadius: BorderRadius.circular(10.0),
               ),
               width: double.infinity,
@@ -186,7 +196,6 @@ class TweetCardDetialsState extends State<TweetCardDetials> {
   }
 
   getData(Tweet tweet) {
-    int repliesCount;
     if (tweet.extendedEntities != null) {
       List<dynamic> result = tweet.extendedEntities['media'];
       result.forEach((res) {
@@ -199,71 +208,32 @@ class TweetCardDetialsState extends State<TweetCardDetials> {
           images.add(res['media_url_https']);
       });
     }
-    if (tweet.extendedTweet != null)
-      text = tweet.extendedTweet['full_text'];
-    else
-      text = tweet.text;
-    if (tweet.retweetedStatus == null && !tweet.truncated) {
+    favorited = tweet.favorited;
+    retweeted = tweet.retweeted;
+    createdAt = tweet.createdAt;
+    if (tweet.retweetedStatus == null) {
       userName = tweet.user['screen_name'];
       name = tweet.user['name'];
       image = tweet.user['profile_image_url_https']
           .replaceAll(new RegExp(r'normal'), '200x200');
-      text = tweet.text;
       retweetCount = tweet.retweetCount;
       favoriteCount = tweet.favoriteCount;
-      favorited = tweet.favorited;
-      retweeted = tweet.retweeted;
-      repliesCount = 0;
-    } else if (tweet.retweetedStatus == null && tweet.truncated) {
-      userName = tweet.user['screen_name'];
-      name = tweet.user['name'];
-      image = tweet.user['profile_image_url_https']
-          .replaceAll(new RegExp(r'normal'), '200x200');
-      text = tweet.text;
-      retweetCount = tweet.retweetCount;
-      favoriteCount = tweet.favoriteCount;
-      favorited = tweet.favorited;
-      retweeted = tweet.retweeted;
-      repliesCount = 0;
-    } else if (tweet.retweetedStatus != null && !tweet.truncated) {
+      if (!tweet.truncated)
+        text = tweet.text;
+      else
+        text = tweet.text;
+    } else {
       userName = tweet.retweetedStatus['user']['screen_name'];
       name = tweet.retweetedStatus['user']['name'];
       image = tweet.retweetedStatus['user']['profile_image_url']
           .replaceAll(new RegExp(r'normal'), '200x200');
-      text = tweet.retweetedStatus['text'];
+      if (!tweet.truncated)
+        text = tweet.retweetedStatus['text'];
+      else
+        text = tweet.retweetedStatus['extended_tweet']['text'];
       retweetCount = tweet.retweetedStatus['retweet_count'];
       favoriteCount = tweet.retweetedStatus['favorite_count'];
-      favorited = tweet.favorited;
-      retweeted = tweet.retweeted;
-      repliesCount = 0;
-    } else if (tweet.retweetedStatus != null && tweet.truncated) {
-      userName = tweet.retweetedStatus['user']['screen_name'];
-      name = tweet.retweetedStatus['user']['name'];
-      image = tweet.retweetedStatus['user']['profile_image_url']
-          .replaceAll(new RegExp(r'normal'), '200x200');
-      text = tweet.retweetedStatus['extended_tweet']['full_text'];
-      retweetCount = tweet.retweetedStatus['retweet_count'];
-      favoriteCount = tweet.retweetedStatus['favorite_count'];
-      favorited = tweet.favorited;
-      retweeted = tweet.retweeted;
-      repliesCount = 0;
+      createdAt = tweet.retweetedStatus['created_at'];
     }
-    _getCredentials().then((credentials) {
-      var r = credentials;
-      var r2 = r.split('=');
-      var r3 = r2[1].split('&');
-      var oauth_token_sec = r2[2];
-      var oauth_token = r3[0];
-      var client = Twitterapi().getAuthorClient(oauth_token, oauth_token_sec);
-      _getReplies(client, userName, tweet.idStr).then((result) {
-        Map<String, dynamic> data = json.decode(result.body);
-        var r = data['statuses'];
-        r.forEach((t) {
-          // print(t['text']);
-          // if(t['in_reply_to_status_id_str']==tweet.idStr)
-          //   print(t['user']['screen_name']+";"+t['text']);
-        });
-      });
-    });
   }
 }
