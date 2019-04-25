@@ -1,7 +1,7 @@
 
 /// A class that contains all the elements that make up a tweet
 class Tweet {
-  final String createAt;
+  final String createdAt;
   final String idStr;
   final String text;
   final bool truncated;
@@ -19,11 +19,11 @@ class Tweet {
   final Map<String, dynamic> retweetedStatus;
 
   /// Constructor that takes in the different variables that are required declared
-  Tweet({this.createAt, this.idStr, this.text, this.truncated, this.retweetCount, this.favoriteCount, this.retweeted, this.favorited, this.inReplyStatusId,this.user, this.place, this.entities, this.extendedEntities, this.extendedTweet, this.quotedStatus, this.retweetedStatus});
+  Tweet({this.createdAt, this.idStr, this.text, this.truncated, this.retweetCount, this.favoriteCount, this.retweeted, this.favorited, this.inReplyStatusId,this.user, this.place, this.entities, this.extendedEntities, this.extendedTweet, this.quotedStatus, this.retweetedStatus});
 
   /// Map the JSON string into a Tweet class
   factory Tweet.fromJson(Map<String, dynamic> usersjson) => Tweet(
-      createAt: usersjson["create_at"] ?? null,
+      createdAt: usersjson["created_at"] ?? null,
       idStr: usersjson["id_str"] ?? null,
       text: usersjson["text"] ?? null,
       truncated: usersjson['truncated'],
