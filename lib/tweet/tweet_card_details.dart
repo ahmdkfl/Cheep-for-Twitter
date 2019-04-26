@@ -177,23 +177,6 @@ class TweetCardDetialsState extends State<TweetCardDetials> {
     return list;
   }
 
-  Future<dynamic> _getReplies(client, id, sinceId) {
-    return client
-        .get('https://api.twitter.com/1.1/search/tweets.json?count=20&q=' +
-            id.toString() +
-            "&since_id=" +
-            sinceId.toString())
-        .then((res) {
-      return res;
-    });
-  }
-
-  Future<String> _getCredentials() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String cred = prefs.getString("credentials");
-    return cred;
-  }
-
   getData(Tweet tweet) {
     if (tweet.extendedEntities != null) {
       List<dynamic> result = tweet.extendedEntities['media'];
