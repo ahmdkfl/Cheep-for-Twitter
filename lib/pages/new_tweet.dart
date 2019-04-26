@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:cheep_for_twitter/twitterapi.dart';
 
 class NewTweet extends StatefulWidget {
-  var client;
 
-  NewTweet({Key, key, @required this.client}) : super(key: key);
+  NewTweet({Key, key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => NewTweetState();
@@ -52,7 +52,8 @@ class NewTweetState extends State<NewTweet> {
         textColor: Colors.white,
         fontSize: 16.0
     );
-    widget.client
+    var client = Twitterapi().getClient();
+    client
         .post('https://api.twitter.com/1.1/statuses/update.json', body: tweet);
     Navigator.of(context).pop();
   }

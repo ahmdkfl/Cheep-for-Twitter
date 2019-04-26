@@ -14,9 +14,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class TweetCardDetials extends StatefulWidget {
   Tweet tweet;
-  var client;
 
-  TweetCardDetials({Key key, this.tweet, this.client}) : super(key: key);
+  TweetCardDetials({Key key, this.tweet}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => TweetCardDetialsState();
@@ -80,7 +79,7 @@ class TweetCardDetialsState extends State<TweetCardDetials> {
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) {
                       return Profile(
-                          client: widget.client, user: widget.tweet.user);
+                          user: widget.tweet.user);
                     }));
                   },
                 ),

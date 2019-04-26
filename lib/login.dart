@@ -49,11 +49,17 @@ class Login extends StatelessWidget {
         twitterApi.getToken(pinTextFieldController.text).then((res) {
           // Store the credentials on the device
           _setCredentials(res).then((commited) {
+            var r = res.credentials.toString();
+            var r2 = r.split('=');
+            var r3 = r2[1].split('&');
+            var oauth_token_sec = r2[2];
+            var oauth_token = r3[0];
+            twitterApi.getAuthorClient(oauth_token, oauth_token_sec);
             // Evoke the homepage screen for the user that logged in
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TabBarHome(res.credentials.toString()),
+                  builder: (context) => TabBarHome(),
                 ));
           });
         });
