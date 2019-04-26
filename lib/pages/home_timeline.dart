@@ -4,13 +4,14 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 
 import 'package:cheep_for_twitter/tweet/tweet.dart';
-import 'package:cheep_for_twitter/tweet/tweet_card4.dart';
+import 'package:cheep_for_twitter/tweet/tweet_card.dart';
 import 'package:cheep_for_twitter/pages/tweet_details.dart';
 
-class HomeTimeline extends StatefulWidget {
-  var client;
+import 'package:cheep_for_twitter/twitterapi.dart';
 
-  HomeTimeline({Key key, @required this.client}) : super(key: key);
+class HomeTimeline extends StatefulWidget {
+
+  HomeTimeline({Key key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => HomeTimelineState();
@@ -19,13 +20,13 @@ class HomeTimeline extends StatefulWidget {
 class HomeTimelineState extends State<HomeTimeline>
     with AutomaticKeepAliveClientMixin {
   Future<dynamic> _loadHomeTimeline;
-  List<Widget> _cachedTweets;
+  static List<Widget> _cachedTweets;
 
   @override
   void initState() {
-    _loadHomeTimeline = _getHomeTimelineInfo(widget.client);
-    _cachedTweets = List<Widget>();
     super.initState();
+    _loadHomeTimeline = _getHomeTimelineInfo();
+    _cachedTweets = List<Widget>();
   }
 
   @override
@@ -38,11 +39,13 @@ class HomeTimelineState extends State<HomeTimeline>
             List<dynamic> userTweets = json.decode(snapshot.data.body);
 
             List<Widget> list = new List<Widget>();
-            if(_cachedTweets.isEmpty){
+            if (userTweets != null && _cachedTweets.isEmpty) {
               userTweets.forEach((tweet) {
                 var t = Tweet.fromJson(tweet);
                 list.add(GestureDetector(
-                  child: TweetCard(tweet: t, client: widget.client,),
+                  child: TweetCard(
+                    tweet: t
+                  ),
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) {
                       return TweetDetails(tweet: t);
@@ -51,15 +54,24 @@ class HomeTimelineState extends State<HomeTimeline>
                 ));
               });
               _cachedTweets = list;
-              }
-            return ListView.builder(
-              itemCount: _cachedTweets.length,
-              itemBuilder: (context, index) {
-                return _cachedTweets[index];
-              },
-            );
+            } else
+              list.add(Container(
+                  margin: EdgeInsets.all(8.0),
+                  child: Text("Limit reached! Try again")));
+            return StreamBuilder<Object>(
+                stream: null,
+                builder: (context, snapshot) {
+                  return ListView.builder(
+                    itemCount: _cachedTweets.length,
+                    itemBuilder: (context, index) {
+                      return _cachedTweets[index];
+                    },
+                  );
+                });
           } else
-            return Center(child:CircularProgressIndicator());
+            return Align(
+                alignment: Alignment.center,
+                child: CircularProgressIndicator());
         },
       ),
     );
@@ -68,7 +80,8 @@ class HomeTimelineState extends State<HomeTimeline>
   @override
   bool get wantKeepAlive => true;
 
-  Future<dynamic> _getHomeTimelineInfo(client) async {
+  Future<dynamic> _getHomeTimelineInfo() async {
+    var client = Twitterapi().getClient();
     return await client.get(
         'https://api.twitter.com/1.1/statuses/home_timeline.json?count=200');
   }
