@@ -19,18 +19,17 @@ void main() async {
     );
   };
 
-  // var credentials = await _getCredentials();
-  _getCredentials().then((credentials){
+  var credentials = await _getCredentials();
   var r = credentials;
   var r2 = r.split('=');
   var r3 = r2[1].split('&');
-  var oauth_token_sec = r2[2];
-  var oauth_token = r3[0];
-  twitterApi.getAuthorClient(oauth_token, oauth_token_sec);
+  var oauthTokenSecret = r2[2];
+  var oauthToken = r3[0];
+  twitterApi.getAuthorClient(oauthToken, oauthTokenSecret);
   if (credentials != null)
     lauchScreen(TabBarHome());
   else
-    lauchScreen(Login());});
+    lauchScreen(Login());
 }
 
 Future<String> _getCredentials() async {

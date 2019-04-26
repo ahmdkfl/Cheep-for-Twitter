@@ -52,9 +52,9 @@ class Login extends StatelessWidget {
             var r = res.credentials.toString();
             var r2 = r.split('=');
             var r3 = r2[1].split('&');
-            var oauth_token_sec = r2[2];
-            var oauth_token = r3[0];
-            twitterApi.getAuthorClient(oauth_token, oauth_token_sec);
+            var oauthTokenSecret = r2[2];
+            var oauthToken = r3[0];
+            twitterApi.getAuthorClient(oauthToken, oauthTokenSecret);
             // Evoke the homepage screen for the user that logged in
             Navigator.pushReplacement(
                 context,
