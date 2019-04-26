@@ -16,7 +16,9 @@ class ImageZoom extends StatelessWidget {
             tag: url,
             child: CachedNetworkImage(
                 placeholder: (context, string) {
-                  return CircularProgressIndicator();
+                  return Align(
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator());
                 },
                 imageUrl: url),
           ),
