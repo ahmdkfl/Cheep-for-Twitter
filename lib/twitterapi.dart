@@ -1,5 +1,6 @@
 import 'package:oauth1/oauth1.dart' as oauth1;
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Contains the platform, clientCredentials, auth, apiKey and apiSecret
 ///
@@ -9,10 +10,16 @@ class Twitterapi {
   static const String _apiKey = '***REMOVED***';
   static const String _apiSecret =
       '***REMOVED***';
-  var _platform, _clientCredentials, _auth, _authorizationResult;
+  static var _platform, _clientCredentials, _auth, _authorizationResult, client;
 
   /// Create instances of platform, client credentials and authorization
-  Twitterapi() {
+  static final Twitterapi _client = new Twitterapi._internal();
+
+  factory Twitterapi() {
+    return _client;
+  }
+
+  Twitterapi._internal(){
     _platform = oauth1.Platform(
         'https://api.twitter.com/oauth/request_token', // temporary credentials request
         'https://api.twitter.com/oauth/authorize', // resource owner authorization
@@ -44,8 +51,13 @@ class Twitterapi {
     return _auth;
   }
 
+  getClient(){
+    return client;
+  }
+
   /// Not needed
   getAuthClient() {
+    print(_authorizationResult);
     return oauth1.Client(_platform.signatureMethod, _clientCredentials,
         _authorizationResult.credentials);
   }
@@ -53,7 +65,14 @@ class Twitterapi {
   /// Return a client instance given a token and a secret token
   getAuthorClient(token, tokenSecret) {
     var credentials = oauth1.Credentials(token, tokenSecret);
-    return oauth1.Client(
+    client = oauth1.Client(
         _platform.signatureMethod, _clientCredentials, credentials);
+        return client;
+  }
+
+  static Future<String> _getCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String cred = prefs.getString("credentials");
+    return cred;
   }
 }
