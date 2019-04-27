@@ -11,11 +11,14 @@ import 'package:cheep_for_twitter/tweet/follow_widget.dart';
 
 class Profile extends StatefulWidget {
   var user;
+  bool isAuthUser;
 
-  Profile({Key, key, @required this.user}) : super(key: key);
+  Profile({Key, key, @required this.user, this.isAuthUser}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => ProfileState();
+  State<StatefulWidget> createState(){
+    if(isAuthUser == null) isAuthUser = false;
+    return ProfileState();}
 }
 
 class ProfileState extends State<Profile> {
@@ -32,7 +35,6 @@ class ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     Map<String, dynamic> data = widget.user;
-
     Map datetime = _parseDate(data['created_at']);
 
     var profileCard = Card(
@@ -49,25 +51,22 @@ class ProfileState extends State<Profile> {
                       imageUrl: data['profile_image_url']
                           .replaceAll(new RegExp(r'normal'), '200x200'),
                       errorWidget: (context, url, error) =>
-                          new Icon(Icons.error),
+                          new Icon(Icons.person),
                       height: 100,
                       width: 100,
                       fit: BoxFit.cover,
                     ),
                   ),
+                        Container(
+                            child: data['verified']
+                                ? IconButton(
+                                    icon: Icon(Icons.verified_user))
+                                : Container()),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(data['name'],
                             style: new TextStyle(fontWeight: FontWeight.bold)),
-                        Container(
-                            child: SizedBox(
-                                height: 15,
-                                width: 15,
-                                child: data['verified']
-                                    ? IconButton(
-                                        icon: Icon(Icons.verified_user))
-                                    : Container()))
                       ]),
                   Text("@" + data['screen_name']),
                 ]),
@@ -83,8 +82,8 @@ class ProfileState extends State<Profile> {
             Container(
                 child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child:Container()
-                  // Text("Joined " + datetime['month'] + " " + datetime['year']),
+              child:
+                  Text("Joined ${datetime['month']}  ${datetime['year']}"),
             )),
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -92,7 +91,7 @@ class ProfileState extends State<Profile> {
                   Text(data['followers_count'].toString() + " Followers"),
                   Text(data['friends_count'].toString() + " Following")
                 ]),
-            FollowWidget(id: data['id_str'])
+            (widget.isAuthUser?Container():FollowWidget(id: data['id_str']))
           ],
         )),
       ),
@@ -187,16 +186,16 @@ class ProfileState extends State<Profile> {
       case "May":
         month = "May";
         break;
-      case "June":
+      case "Jun":
         month = "June";
         break;
-      case "July":
+      case "Jul":
         month = "July";
         break;
       case "Aug":
         month = "August";
         break;
-      case "Sept":
+      case "Sep":
         month = "September";
         break;
       case "Oct":
@@ -210,8 +209,8 @@ class ProfileState extends State<Profile> {
         break;
     }
     Map<String, String> dt = new Map();
-    dt['month'] = month;
     dt['day'] = datetime[2];
+    dt['month'] = month;
     dt['year'] = datetime[5];
     return dt;
   }
