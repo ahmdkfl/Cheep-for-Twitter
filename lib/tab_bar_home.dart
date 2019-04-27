@@ -139,7 +139,7 @@ class _TabBarHomeState extends State<TabBarHome>
                               ConnectionState.done) {
                             Map<String, dynamic> user =
                                 json.decode(snapshot.data.body);
-                            return Profile(user: user);
+                            return Profile(user: user, isAuthUser: true);
                           } else
                             return Align(
                                 alignment: Alignment.center,
