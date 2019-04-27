@@ -1,14 +1,16 @@
 
 import 'package:flutter/material.dart';
 
+import 'package:cheep_for_twitter/twitterapi.dart';
+
 /// Favourite icon
 /// 
 /// Contains the count for the favourite tweet and the if it is favourited by the user
 class FavoriteWidget extends StatefulWidget {
 
-  var isFavorited, favoriteCount;
+  var isFavorited, favoriteCount, id;
 
-  FavoriteWidget({Key key, @required this.isFavorited, @required this.favoriteCount}):super(key: key);
+  FavoriteWidget({Key key, @required this.isFavorited, @required this.favoriteCount, @required this.id}):super(key: key);
 
   @override
   State<StatefulWidget> createState() => _FavoriteWidgetState();
@@ -47,13 +49,31 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
     setState(() {
       // Change the favourite count and the favourite value whether the tweet is liked or not
       if (widget.isFavorited) {
+        _unfavoriteTweet();
         widget.favoriteCount -= 1;
         widget.isFavorited = false;
       } else {
+        _favoriteTweet();
         widget.favoriteCount += 1;
         widget.isFavorited = true;
       } 
     });
+  }
+
+  Future<dynamic> _favoriteTweet() async {
+    var client = Twitterapi().getClient();
+    Map<String, String> body = new Map();
+    body['id'] = widget.id;
+    return await client.post(
+        'https://api.twitter.com/1.1/favorites/create.json', body: body);
+  }
+
+  Future<dynamic> _unfavoriteTweet() async {
+    var client = Twitterapi().getClient();
+    Map<String, String> body = new Map();
+    body['id'] = widget.id;
+    return await client.post(
+        'https://api.twitter.com/1.1/favorites/destroy.json', body: body);
   }
 
 }
