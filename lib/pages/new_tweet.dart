@@ -5,7 +5,10 @@ import 'package:cheep_for_twitter/twitterapi.dart';
 
 class NewTweet extends StatefulWidget {
 
-  NewTweet({Key, key}) : super(key: key);
+  String replyId;
+  String username;
+
+  NewTweet({Key, key, this.replyId, @required this.username}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => NewTweetState();
@@ -16,9 +19,16 @@ class NewTweetState extends State<NewTweet> {
 
   @override
   Widget build(BuildContext context) {
+    var title;
+    if(widget.username != null ?? "")
+      title = "Reply to "+widget.username;
+    else
+      title = "New Tweet";
+    print(widget.replyId);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("New Tweet", style: TextStyle(color: Colors.white)),
+        title: Text(title, style: TextStyle(color: Colors.white)),
         centerTitle: true,
       ),
       body: Padding(
@@ -43,7 +53,9 @@ class NewTweetState extends State<NewTweet> {
 
   _sendTweet() {
     var tweet = new Map();
-    tweet['status'] = tweetTextFieldController.text.toString();
+    tweet['status'] = "@"+widget.username+" "+tweetTextFieldController.text.toString();
+    if(widget.replyId != null ?? "")
+      tweet['in_reply_to_status_id'] = widget.replyId;
     Fluttertoast.showToast(
         msg: "Tweeting...",
         toastLength: Toast.LENGTH_SHORT,
