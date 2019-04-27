@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:cheep_for_twitter/tweet/tweet.dart';
 import 'package:cheep_for_twitter/tweet/tweet_card.dart';
-import 'package:cheep_for_twitter/tweet/tweet_card_details.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 import 'dart:convert';
 
@@ -26,7 +24,7 @@ class TweetDetails extends StatelessWidget {
                   var tweets = snapshot.data['statuses'];
 
                   List<Widget> list = new List<Widget>();
-                  list.add(TweetCardDetials(tweet: tweet));
+                  list.add(TweetCard(tweet: tweet, type: TweetCard.detail));
                   if (tweets != null)
                     tweets.forEach((tweetItem) {
                       var t = Tweet.fromJson(tweetItem);
@@ -42,9 +40,9 @@ class TweetDetails extends StatelessWidget {
                         ));
                     });
                   else
-                    list.add(Container(
-                        margin: EdgeInsets.all(8.0),
-                        child: Text("Limit reached! Try again")));
+                    Align(
+                        alignment: Alignment.center,
+                        child: CircularProgressIndicator());
                   return StreamBuilder<Object>(
                       stream: null,
                       builder: (context, snapshot) {
@@ -55,7 +53,7 @@ class TweetDetails extends StatelessWidget {
                           },
                         );
                       });
-                } else if(snapshot.data == null)
+                } else if(snapshot.hasError)
                   return Column(
                     children: <Widget>[
                       Text("Limit reached!"),
