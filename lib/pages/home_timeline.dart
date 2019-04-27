@@ -10,7 +10,6 @@ import 'package:cheep_for_twitter/pages/tweet_details.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
 
 class HomeTimeline extends StatefulWidget {
-
   HomeTimeline({Key key}) : super(key: key);
 
   @override
@@ -43,9 +42,7 @@ class HomeTimelineState extends State<HomeTimeline>
               userTweets.forEach((tweet) {
                 var t = Tweet.fromJson(tweet);
                 list.add(GestureDetector(
-                  child: TweetCard(
-                    tweet: t
-                  ),
+                  child: TweetCard(tweet: t),
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) {
                       return TweetDetails(tweet: t);
@@ -55,9 +52,9 @@ class HomeTimelineState extends State<HomeTimeline>
               });
               _cachedTweets = list;
             } else
-              list.add(Container(
-                  margin: EdgeInsets.all(8.0),
-                  child: Text("Limit reached! Try again")));
+              Align(
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator());
             return StreamBuilder<Object>(
                 stream: null,
                 builder: (context, snapshot) {
