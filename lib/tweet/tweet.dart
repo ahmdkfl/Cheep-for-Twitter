@@ -26,7 +26,7 @@ class Tweet {
   factory Tweet.fromJson(Map<String, dynamic> usersjson) => Tweet(
       createdAt: usersjson["created_at"] ?? null,
       idStr: usersjson["id_str"] ?? null,
-      text: usersjson["text"] ?? null,
+      text: usersjson["text"] ?? usersjson['full_text'],
       truncated: usersjson['truncated'],
       retweetCount: usersjson['retweet_count'] ?? null,
       favoriteCount: usersjson['favorite_count'] ?? null,
