@@ -11,10 +11,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class TweetCard extends StatefulWidget {
-  Tweet tweet;
+  static const int normal = 0;
+  static const int detail = 1;
 
-  TweetCard({Key key, @required this.tweet})
-      : super(key: key);
+  Tweet tweet;
+  int type = TweetCard.normal;
+
+  TweetCard({Key key, @required this.tweet, this.type}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => TweetCardState();
@@ -42,85 +45,151 @@ class TweetCardState extends State<TweetCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 15),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          isRetweeted(hasRetweeted, widget.tweet.user['name']),
-          Container(
-            margin: EdgeInsets.only(top: 10),
-            child: Row(
+    var tweetCard = Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        isRetweeted(hasRetweeted, widget.tweet.user['name']),
+        Container(
+          margin: EdgeInsets.only(top: 10),
+          child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                  child: GestureDetector(
+                    child: ClipOval(
+                      child: CachedNetworkImage(
+                          imageUrl: image,
+                          errorWidget: (context, url, error) =>
+                              new Icon(Icons.error),
+                          height: 55,
+                          width: 55,
+                          fit: BoxFit.cover),
+                    ),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) {
+                        var user;
+                        if (hasRetweeted)
+                          user = widget.tweet.retweetedStatus['user'];
+                        else
+                          user = widget.tweet.user;
+
+                        return Profile(user: user);
+                      }));
+                    },
+                  ),
+                  margin: EdgeInsets.only(right: 10),
+                ),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          name,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(" @" + userName,
+                            style: TextStyle(color: Colors.grey),
+                            overflow: TextOverflow.fade),
+                      ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 3.0),
+                      child: Text(
+                        text,
+                        softWrap: true,
+                      ),
+                    ),
+                    Column(children: _getTweetImages()),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        ReplyWidget(isReplied: false, userName: userName, id: widget.tweet.idStr),
+                        RetweetWidget(
+                            isRetweeted: retweeted,
+                            retweetCount: retweetCount,
+                            id: widget.tweet.idStr),
+                        FavoriteWidget(
+                            isFavorited: favorited,
+                            favoriteCount: favoriteCount,
+                            id: widget.tweet.idStr),
+                      ],
+                    )
+                  ],
+                ))
+              ]),
+        ),
+        Divider(height: 5)
+      ],
+    );
+
+    var tweetCardDetails = Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        isRetweeted(hasRetweeted, widget.tweet.user['name']),
+        Row(
+          children: <Widget>[
+            Container(
+              child: GestureDetector(
+                child: ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: image,
+                    errorWidget: (context, url, error) => new Icon(Icons.error),
+                    height: 55,
+                    width: 55,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return Profile(user: widget.tweet.user);
+                  }));
+                },
+              ),
+              margin: EdgeInsets.all(10),
+            ),
+            Container(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Container(
-                    child: GestureDetector(
-                      child: ClipOval(
-                        child: CachedNetworkImage(
-                            imageUrl: image,
-                            errorWidget: (context, url, error) =>
-                                new Icon(Icons.error),
-                            height: 55,
-                            width: 55,
-                            fit: BoxFit.cover),
-                      ),
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) {
-                          var user;
-                          if (hasRetweeted)
-                            user = widget.tweet.retweetedStatus['user'];
-                          else
-                            user = widget.tweet.user;
-
-                          return Profile(user: user);
-                        }));
-                      },
-                    ),
-                    margin: EdgeInsets.only(right: 10),
+                  Text(
+                    name,
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Expanded(
-                      child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            name,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(" @" + userName,
-                              style: TextStyle(color: Colors.grey),
-                              overflow: TextOverflow.fade),
-                        ],
-                      ),
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 3.0),
-                        child: Text(
-                          text,
-                          softWrap: true,
-                        ),
-                      ),
-                      Column(children: _getTweetImages()),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          ReplyWidget(isReplied: false),
-                          RetweetWidget(
-                              isRetweeted: retweeted,
-                              retweetCount: retweetCount),
-                          FavoriteWidget(
-                              isFavorited: favorited,
-                              favoriteCount: favoriteCount),
-                        ],
-                      )
-                    ],
-                  ))
-                ]),
-          ),
-          Divider(height: 5)
-        ],
-      ),
+                  Text("@" + userName,
+                      style: TextStyle(color: Colors.grey),
+                      overflow: TextOverflow.fade),
+                  Text(createdAt,
+                      style: TextStyle(color: Colors.grey),
+                      overflow: TextOverflow.fade),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Container(margin: EdgeInsets.only(bottom: 8.0), child: Text(text)),
+        Column(children: _getTweetImages()),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            ReplyWidget(isReplied: false, userName: userName, id: widget.tweet.idStr),
+            RetweetWidget(
+                isRetweeted: retweeted,
+                retweetCount: retweetCount,
+                id: widget.tweet.idStr),
+            FavoriteWidget(
+                isFavorited: favorited,
+                favoriteCount: favoriteCount,
+                id: widget.tweet.idStr),
+          ],
+        ),
+        Divider(height: 5)
+      ],
     );
+    var card = tweetCard;
+    if (widget.type == TweetCard.detail) card = tweetCardDetails;
+    return Container(margin: EdgeInsets.symmetric(horizontal: 15), child: card);
   }
 
   Widget isRetweeted(ret, name) {
@@ -182,7 +251,7 @@ class TweetCardState extends State<TweetCard> {
   getData(Tweet tweet) {
     if (tweet.extendedEntities != null) {
       List<dynamic> result;
-      if(tweet.retweetedStatus == null)
+      if (tweet.retweetedStatus == null)
         result = tweet.extendedEntities['media'];
       else
         result = tweet.retweetedStatus['extended_entities']['media'];
@@ -196,7 +265,6 @@ class TweetCardState extends State<TweetCard> {
           images.add(res['media_url_https']);
       });
     }
-
     favorited = tweet.favorited;
     retweeted = tweet.retweeted;
     createdAt = tweet.createdAt;
