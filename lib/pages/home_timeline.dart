@@ -80,6 +80,6 @@ class HomeTimelineState extends State<HomeTimeline>
   Future<dynamic> _getHomeTimelineInfo() async {
     var client = Twitterapi().getClient();
     return await client.get(
-        'https://api.twitter.com/1.1/statuses/home_timeline.json?count=200');
+        'https://api.twitter.com/1.1/statuses/home_timeline.json?count=200&tweet_mode=extended');
   }
 }
