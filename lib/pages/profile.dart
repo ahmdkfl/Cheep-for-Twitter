@@ -7,12 +7,12 @@ import 'package:cheep_for_twitter/tweet/tweet_card.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cheep_for_twitter/twitterapi.dart';
+import 'package:cheep_for_twitter/tweet/follow_widget.dart';
 
 class Profile extends StatefulWidget {
   var user;
 
-  Profile({Key, key, @required this.user})
-      : super(key: key);
+  Profile({Key, key, @required this.user}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => ProfileState();
@@ -32,6 +32,8 @@ class ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     Map<String, dynamic> data = widget.user;
+
+    Map datetime = _parseDate(data['created_at']);
 
     var profileCard = Card(
       child: Padding(
@@ -53,16 +55,44 @@ class ProfileState extends State<Profile> {
                       fit: BoxFit.cover,
                     ),
                   ),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(data['name'],
+                            style: new TextStyle(fontWeight: FontWeight.bold)),
+                        Container(
+                            child: SizedBox(
+                                height: 15,
+                                width: 15,
+                                child: data['verified']
+                                    ? IconButton(
+                                        icon: Icon(Icons.verified_user))
+                                    : Container()))
+                      ]),
                   Text("@" + data['screen_name']),
-                  Text(data['name'],
-                      style: new TextStyle(fontWeight: FontWeight.bold)),
                 ]),
+            Row(
+              children: <Widget>[
+                Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(data['description']),
+                ))
+              ],
+            ),
+            Container(
+                child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child:Container()
+                  // Text("Joined " + datetime['month'] + " " + datetime['year']),
+            )),
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
                   Text(data['followers_count'].toString() + " Followers"),
                   Text(data['friends_count'].toString() + " Following")
-                ])
+                ]),
+            FollowWidget(id: data['id_str'])
           ],
         )),
       ),
@@ -107,9 +137,7 @@ class ProfileState extends State<Profile> {
                       child: r,
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) {
-                          return TweetDetails(
-                            tweet: t
-                          );
+                          return TweetDetails(tweet: t);
                         }));
                       },
                     ));
@@ -131,10 +159,60 @@ class ProfileState extends State<Profile> {
     );
   }
 
+  /// Returns an a list of tweets as a JSON file from the user timeline
   Future<dynamic> _getUserTimeline() async {
     var client = Twitterapi().getClient();
     return await client.get(
         'https://api.twitter.com/1.1/statuses/user_timeline.json?count=200&screen_name=' +
             widget.user['screen_name']);
+  }
+
+  /// Parse the datetime to useful information
+  Map _parseDate(data) {
+    var datetime = data.split(' ');
+    var month;
+    switch (datetime[1]) {
+      case "Jan":
+        month = "January";
+        break;
+      case "Feb":
+        month = "February";
+        break;
+      case "Mar":
+        month = "March";
+        break;
+      case "Apr":
+        month = "April";
+        break;
+      case "May":
+        month = "May";
+        break;
+      case "June":
+        month = "June";
+        break;
+      case "July":
+        month = "July";
+        break;
+      case "Aug":
+        month = "August";
+        break;
+      case "Sept":
+        month = "September";
+        break;
+      case "Oct":
+        month = "October";
+        break;
+      case "Nov":
+        month = "November";
+        break;
+      case "Dec":
+        month = "December";
+        break;
+    }
+    Map<String, String> dt = new Map();
+    dt['month'] = month;
+    dt['day'] = datetime[2];
+    dt['year'] = datetime[5];
+    return dt;
   }
 }
