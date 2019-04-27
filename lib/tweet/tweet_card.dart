@@ -265,34 +265,52 @@ class TweetCardState extends State<TweetCard> {
           images.add(res['media_url_https']);
       });
     }
+    hasRetweeted = false;
+    if (tweet.retweetedStatus != null){
+      tweet = Tweet.fromJson(tweet.retweetedStatus);
+      hasRetweeted = true;      
+      }
     favorited = tweet.favorited;
     retweeted = tweet.retweeted;
     createdAt = tweet.createdAt;
-    hasRetweeted = false;
-    if (tweet.retweetedStatus == null) {
       userName = tweet.user['screen_name'];
       name = tweet.user['name'];
       image = tweet.user['profile_image_url_https']
           .replaceAll(new RegExp(r'normal'), '200x200');
       retweetCount = tweet.retweetCount;
       favoriteCount = tweet.favoriteCount;
-      if (tweet.truncated)
         text = tweet.text;
-      else
-        text = tweet.text;
-    } else {
-      userName = tweet.retweetedStatus['user']['screen_name'];
-      name = tweet.retweetedStatus['user']['name'];
-      image = tweet.retweetedStatus['user']['profile_image_url']
-          .replaceAll(new RegExp(r'normal'), '200x200');
-      if (!tweet.truncated)
-        text = tweet.retweetedStatus['text'];
-      else
-        text = tweet.retweetedStatus['extended_tweet']['text'];
-      hasRetweeted = true;
-      retweetCount = tweet.retweetedStatus['retweet_count'];
-      favoriteCount = tweet.retweetedStatus['favorite_count'];
-      createdAt = tweet.retweetedStatus['created_at'];
-    }
+    // if (tweet.retweetedStatus == null) {
+    //   userName = tweet.user['screen_name'];
+    //   name = tweet.user['name'];
+    //   image = tweet.user['profile_image_url_https']
+    //       .replaceAll(new RegExp(r'normal'), '200x200');
+    //   retweetCount = tweet.retweetCount;
+    //   favoriteCount = tweet.favoriteCount;
+    //   text = tweet.text;
+    // } else {
+    //   userName = tweet.retweetedStatus['user']['screen_name'];
+    //   name = tweet.retweetedStatus['user']['name'];
+    //   image = tweet.retweetedStatus['user']['profile_image_url']
+    //       .replaceAll(new RegExp(r'normal'), '200x200');
+    //   if (!tweet.truncated)
+    //     text = tweet.retweetedStatus['text'];
+    //   else
+    //     text = tweet.retweetedStatus['full_text'];
+    //   hasRetweeted = true;
+    //   retweetCount = tweet.retweetedStatus['retweet_count'];
+    //   favoriteCount = tweet.retweetedStatus['favorite_count'];
+    //   createdAt = tweet.retweetedStatus['created_at'];
+    // }
+    // if(tweet.entities !=null){
+    //   List<dynamic> urlls = tweet.entities['urls'];
+    //   print(urlls);
+    //   urlls.forEach((u){
+    //     print("${text.contains(u['url'])} AND ${u['expanded_url'].contains('twitter.')}");
+    //     print(text.replaceAll(u['url'], ""));
+    //     if(u['expanded_url'].contains("twitter")){
+    //       text = text.replaceAll(u['url'], "");}
+    //   });
+    // }
   }
 }
