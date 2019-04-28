@@ -20,6 +20,7 @@ void main() async {
   };
 
   var credentials = await _getCredentials();
+  if (credentials != null) {
   var r = credentials;
   var r2 = r.split('=');
   var r3 = r2[1].split('&');
@@ -28,7 +29,7 @@ void main() async {
   twitterApi.getAuthorClient(oauthToken, oauthTokenSecret);
   if (credentials != null)
     lauchScreen(TabBarHome());
-  else
+  } else
     lauchScreen(Login());
 }
 
