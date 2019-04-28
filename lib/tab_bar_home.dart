@@ -127,9 +127,7 @@ class _TabBarHomeState extends State<TabBarHome>
               children: [
                 new Container(
                     color: Colors.white,
-                    child: HomeTimeline(                    )),
-                // new Container(
-                //     color: Colors.white, child: UserProfile(client: client)),
+                    child: HomeTimeline()),
                 new Container(
                     color: Colors.white,
                     child: FutureBuilder(

@@ -57,7 +57,6 @@ class Twitterapi {
 
   /// Not needed
   getAuthClient() {
-    print(_authorizationResult);
     return oauth1.Client(_platform.signatureMethod, _clientCredentials,
         _authorizationResult.credentials);
   }
