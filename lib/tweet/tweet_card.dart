@@ -7,14 +7,19 @@ import 'package:cheep_for_twitter/pages/profile.dart';
 import 'package:cheep_for_twitter/pages/image_zoom.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+/// Tweet card that display information about a tweet
 class TweetCard extends StatefulWidget {
+  // constants that define if the card is normal or detailed
   static const int normal = 0;
   static const int detail = 1;
 
+  // Tweet to display
   Tweet tweet;
+  // initilise the type of tweet as normal if no type parameter is passed in the constructor
   int type = TweetCard.normal;
 
   TweetCard({Key key, @required this.tweet, this.type}) : super(key: key);
@@ -24,6 +29,7 @@ class TweetCard extends StatefulWidget {
 }
 
 class TweetCardState extends State<TweetCard> {
+  // Infomation about a tweet that can be displayed
   String createdAt;
   String image;
   String name;
@@ -31,20 +37,42 @@ class TweetCardState extends State<TweetCard> {
   String text;
   String mediaType;
   List<String> images;
+  List<String> urls;
   bool favorited;
   int favoriteCount;
   bool retweeted;
   int retweetCount;
   bool hasRetweeted;
 
+  @override
   void initState() {
-    images = List<String>();
-    getData(widget.tweet);
     super.initState();
+    // initilise the images variable
+    images = List<String>();
+    // parse the information about the tweet
+    getData(widget.tweet);
   }
 
   @override
   Widget build(BuildContext context) {
+    // Parse the date of the creation of the tweet
+    Map datetime = _parseDate(widget.tweet.createdAt);
+    // current date and time
+    DateTime now = DateTime.now();
+    // time of the creation of the tweet
+    var time = datetime['time'];
+
+    // If the tweet was not posted today then show the time, the day and the month
+    if ("${now.day}" != datetime['day']) {
+      time = time + " " + datetime['day'] + " " + datetime['month'];
+    }
+
+    // If the tweet was not posted in the current year then add the year to the time
+    if ("${now.day}" != datetime['year']) {
+      time = time + " " + datetime['year'];
+    }
+
+    // normal card the displays essential information about a tweet
     var tweetCard = Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
@@ -72,7 +100,6 @@ class TweetCardState extends State<TweetCard> {
                           user = widget.tweet.retweetedStatus['user'];
                         else
                           user = widget.tweet.user;
-
                         return Profile(user: user);
                       }));
                     },
@@ -85,27 +112,38 @@ class TweetCardState extends State<TweetCard> {
                   children: <Widget>[
                     Row(
                       children: <Widget>[
-                        Text(
-                          name,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(" @" + userName,
-                            style: TextStyle(color: Colors.grey),
+                        Text(name,
+                            style: TextStyle(fontWeight: FontWeight.bold),
                             overflow: TextOverflow.fade),
+                        Flexible(
+                          child: Text(" @" + userName,
+                              style: TextStyle(color: Colors.grey),
+                              overflow: TextOverflow.fade),
+                        ),
+                        Expanded(
+                            child: Text(
+                                datetime['time'].toString().substring(0, 5),
+                                overflow: TextOverflow.fade))
                       ],
                     ),
                     Container(
-                      margin: EdgeInsets.symmetric(vertical: 3.0),
-                      child: Text(
-                        text,
-                        softWrap: true,
-                      ),
-                    ),
+                        margin: EdgeInsets.symmetric(vertical: 3.0),
+                        child: Linkify(
+                          text: text,
+                          humanize: true,
+                          onOpen: (link) async {
+                            if (await canLaunch(link.url)) {
+                              await launch(link.url);
+                            } else {
+                              throw 'Could not launch $link';
+                            }
+                          },
+                        )),
                     Column(children: _getTweetImages()),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        ReplyWidget(isReplied: false, userName: userName, id: widget.tweet.idStr),
+                        ReplyWidget(userName: name, id: widget.tweet.idStr),
                         RetweetWidget(
                             isRetweeted: retweeted,
                             retweetCount: retweetCount,
@@ -124,6 +162,7 @@ class TweetCardState extends State<TweetCard> {
       ],
     );
 
+    // detail card show more information then the normal card
     var tweetCardDetails = Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
@@ -160,7 +199,8 @@ class TweetCardState extends State<TweetCard> {
                   Text("@" + userName,
                       style: TextStyle(color: Colors.grey),
                       overflow: TextOverflow.fade),
-                  Text(createdAt,
+                  Text(
+                      "${datetime['day']} ${datetime['month']} ${datetime['year']} at ${datetime['time']}",
                       style: TextStyle(color: Colors.grey),
                       overflow: TextOverflow.fade),
                 ],
@@ -168,12 +208,26 @@ class TweetCardState extends State<TweetCard> {
             ),
           ],
         ),
-        Container(margin: EdgeInsets.only(bottom: 8.0), child: Text(text)),
+        Container(
+            margin: EdgeInsets.only(bottom: 8.0),
+            child:
+                // Text(text)
+                Linkify(
+              text: text,
+              humanize: true,
+              onOpen: (link) async {
+                if (await canLaunch(link.url)) {
+                  await launch(link.url);
+                } else {
+                  throw 'Could not launch $link';
+                }
+              },
+            )),
         Column(children: _getTweetImages()),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            ReplyWidget(isReplied: false, userName: userName, id: widget.tweet.idStr),
+            ReplyWidget(userName: name, id: widget.tweet.idStr),
             RetweetWidget(
                 isRetweeted: retweeted,
                 retweetCount: retweetCount,
@@ -187,11 +241,13 @@ class TweetCardState extends State<TweetCard> {
         Divider(height: 5)
       ],
     );
+    // Depending on the variable type a normal or detail card is returned
     var card = tweetCard;
     if (widget.type == TweetCard.detail) card = tweetCardDetails;
     return Container(margin: EdgeInsets.symmetric(horizontal: 15), child: card);
   }
 
+  /// Adds Retweeted on to of the tweet
   Widget isRetweeted(ret, name) {
     if (ret)
       return Container(
@@ -199,9 +255,11 @@ class TweetCardState extends State<TweetCard> {
           child: Text(name + " Retweeted",
               style:
                   TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)));
+    // If is not a retweet, then returns an empty widget that not occupy space
     return Container();
   }
 
+  /// Retrieves images, gifs, video from the tweet
   List<Widget> _getTweetImages() {
     List<Widget> list = new List();
     if (mediaType == "photo")
@@ -248,6 +306,7 @@ class TweetCardState extends State<TweetCard> {
     return list;
   }
 
+  /// Parse the data of a tweet and it assigned to the corrisponding variables
   getData(Tweet tweet) {
     if (tweet.extendedEntities != null) {
       List<dynamic> result;
@@ -266,51 +325,90 @@ class TweetCardState extends State<TweetCard> {
       });
     }
     hasRetweeted = false;
-    if (tweet.retweetedStatus != null){
+    if (tweet.retweetedStatus != null) {
       tweet = Tweet.fromJson(tweet.retweetedStatus);
-      hasRetweeted = true;      
-      }
+      hasRetweeted = true;
+    }
     favorited = tweet.favorited;
     retweeted = tweet.retweeted;
     createdAt = tweet.createdAt;
-      userName = tweet.user['screen_name'];
-      name = tweet.user['name'];
-      image = tweet.user['profile_image_url_https']
-          .replaceAll(new RegExp(r'normal'), '200x200');
-      retweetCount = tweet.retweetCount;
-      favoriteCount = tweet.favoriteCount;
-        text = tweet.text;
-    // if (tweet.retweetedStatus == null) {
-    //   userName = tweet.user['screen_name'];
-    //   name = tweet.user['name'];
-    //   image = tweet.user['profile_image_url_https']
-    //       .replaceAll(new RegExp(r'normal'), '200x200');
-    //   retweetCount = tweet.retweetCount;
-    //   favoriteCount = tweet.favoriteCount;
-    //   text = tweet.text;
-    // } else {
-    //   userName = tweet.retweetedStatus['user']['screen_name'];
-    //   name = tweet.retweetedStatus['user']['name'];
-    //   image = tweet.retweetedStatus['user']['profile_image_url']
-    //       .replaceAll(new RegExp(r'normal'), '200x200');
-    //   if (!tweet.truncated)
-    //     text = tweet.retweetedStatus['text'];
-    //   else
-    //     text = tweet.retweetedStatus['full_text'];
-    //   hasRetweeted = true;
-    //   retweetCount = tweet.retweetedStatus['retweet_count'];
-    //   favoriteCount = tweet.retweetedStatus['favorite_count'];
-    //   createdAt = tweet.retweetedStatus['created_at'];
-    // }
-    // if(tweet.entities !=null){
-    //   List<dynamic> urlls = tweet.entities['urls'];
-    //   print(urlls);
-    //   urlls.forEach((u){
-    //     print("${text.contains(u['url'])} AND ${u['expanded_url'].contains('twitter.')}");
-    //     print(text.replaceAll(u['url'], ""));
-    //     if(u['expanded_url'].contains("twitter")){
-    //       text = text.replaceAll(u['url'], "");}
-    //   });
-    // }
+    userName = tweet.user['screen_name'];
+    name = tweet.user['name'];
+    image = tweet.user['profile_image_url_https']
+        .replaceAll(new RegExp(r'normal'), '200x200');
+    retweetCount = tweet.retweetCount;
+    favoriteCount = tweet.favoriteCount;
+    text = tweet.text;
+    if (tweet.entities != null) {
+      List<dynamic> urlls = tweet.entities['urls'];
+      urlls.forEach((u) {
+        if (u['expanded_url'].contains("twitter")) {
+          text = text.replaceAll(u['url'], "");
+        }
+      });
+    }
+  }
+
+  /// Parse the datetime to useful information
+  Map _parseDate(data) {
+    var datetime = data.split(' ');
+    var month, monthNum;
+    switch (datetime[1]) {
+      case "Jan":
+        month = "January";
+        monthNum = 1;
+        break;
+      case "Feb":
+        month = "February";
+        monthNum = 2;
+        break;
+      case "Mar":
+        month = "March";
+        monthNum = 3;
+        break;
+      case "Apr":
+        month = "April";
+        monthNum = 4;
+        break;
+      case "May":
+        month = "May";
+        monthNum = 5;
+        break;
+      case "Jun":
+        month = "June";
+        monthNum = 6;
+        break;
+      case "Jul":
+        month = "July";
+        monthNum = 7;
+        break;
+      case "Aug":
+        month = "August";
+        monthNum = 8;
+        break;
+      case "Sep":
+        month = "September";
+        monthNum = 9;
+        break;
+      case "Oct":
+        month = "October";
+        monthNum = 10;
+        break;
+      case "Nov":
+        month = "November";
+        monthNum = 11;
+        break;
+      case "Dec":
+        month = "December";
+        monthNum = 12;
+        break;
+    }
+    Map<String, String> dt = new Map();
+    dt['time'] = datetime[3];
+    dt['day'] = datetime[2];
+    dt['month'] = month;
+    dt['monthNum'] = "${monthNum}";
+    dt['year'] = datetime[5];
+    return dt;
   }
 }
