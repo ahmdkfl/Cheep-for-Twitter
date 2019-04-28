@@ -102,7 +102,6 @@ class Login extends StatelessWidget {
             ),
             // Button that verifies the login code
             sendPinButton,
-            // button("Verify Code", _verifyCode(context))
           ]),
         ]),
       ),

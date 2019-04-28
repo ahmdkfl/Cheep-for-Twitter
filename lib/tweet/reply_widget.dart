@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cheep_for_twitter/pages/new_tweet.dart';
 
+/// Reply button
 class ReplyWidget extends StatefulWidget {
+  // username of the user the reply is directed to
+  // and id of the tweet the reply is directed to
   var userName, id;
 
-  ReplyWidget({Key key, this.id, this.userName})
-      : super(key: key);
+  ReplyWidget({Key key, this.id, this.userName}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ReplyWidgetState();
@@ -17,6 +19,7 @@ class _ReplyWidgetState extends State<ReplyWidget> {
     return Row(
       children: <Widget>[
         Container(
+            // Reply icon
             child: IconButton(
           icon: Icon(Icons.reply),
           iconSize: 18,
@@ -27,6 +30,7 @@ class _ReplyWidgetState extends State<ReplyWidget> {
     );
   }
 
+  /// Shows a reply screen
   _reply() {
     Navigator.push(context, MaterialPageRoute(builder: (_) {
       return NewTweet(replyId: widget.id, username: widget.userName);
