@@ -16,9 +16,10 @@ class Profile extends StatefulWidget {
   Profile({Key, key, @required this.user, this.isAuthUser}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState(){
-    if(isAuthUser == null) isAuthUser = false;
-    return ProfileState();}
+  State<StatefulWidget> createState() {
+    if (isAuthUser == null) isAuthUser = false;
+    return ProfileState();
+  }
 }
 
 class ProfileState extends State<Profile> {
@@ -57,11 +58,10 @@ class ProfileState extends State<Profile> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                        Container(
-                            child: data['verified']
-                                ? IconButton(
-                                    icon: Icon(Icons.verified_user))
-                                : Container()),
+                  Container(
+                      child: data['verified']
+                          ? IconButton(icon: Icon(Icons.verified_user))
+                          : Container()),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -82,8 +82,7 @@ class ProfileState extends State<Profile> {
             Container(
                 child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child:
-                  Text("Joined ${datetime['month']}  ${datetime['year']}"),
+              child: Text("Joined ${datetime['month']} ${datetime['year']}"),
             )),
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -91,11 +90,49 @@ class ProfileState extends State<Profile> {
                   Text(data['followers_count'].toString() + " Followers"),
                   Text(data['friends_count'].toString() + " Following")
                 ]),
-            (widget.isAuthUser?Container():FollowWidget(id: data['id_str']))
+            (widget.isAuthUser ? Container() : FollowWidget(id: data['id_str']))
           ],
         )),
       ),
     );
+
+    var bannerImage = CachedNetworkImage(
+      imageUrl: data['profile_banner_url'],
+      errorWidget: (context, url, error) => new Icon(Icons.error),
+      fit: BoxFit.cover,
+    );
+
+    var profile = FutureBuilder(
+      future: _loadUserTime,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<dynamic> userTweets = json.decode(snapshot.data.body);
+
+          List<Widget> list = new List<Widget>();
+          list.add(profileCard);
+          userTweets.forEach((tweet) {
+            var t = Tweet.fromJson(tweet);
+            TweetCard r = TweetCard(tweet: t);
+            list.add(GestureDetector(
+              child: r,
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) {
+                  return TweetDetails(tweet: t);
+                }));
+              },
+            ));
+          });
+          _cachedTweets = list;
+          return Expanded(
+              child: StreamBuilder<Object>(builder: (context, snapshot) {
+            return ListView(children: _cachedTweets, shrinkWrap: true);
+          }));
+        } else
+          return Align(
+              alignment: Alignment.center, child: CircularProgressIndicator());
+      },
+    );
+
     return Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -103,7 +140,8 @@ class ProfileState extends State<Profile> {
             SliverAppBar(
               expandedHeight: 200.0,
               floating: true,
-              pinned: true,
+              pinned: false,
+              snap: true,
               flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
                   title: Text(data['name'],
@@ -111,48 +149,13 @@ class ProfileState extends State<Profile> {
                         color: Colors.white,
                         fontSize: 16.0,
                       )),
-                  background: CachedNetworkImage(
-                    imageUrl: data['profile_banner_url'],
-                    errorWidget: (context, url, error) => new Icon(Icons.error),
-                  )),
+                  background: bannerImage),
             ),
           ];
         },
         body: Column(
           // shrinkWrap: true,
-          children: <Widget>[
-            FutureBuilder(
-              future: _loadUserTime,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  List<dynamic> userTweets = json.decode(snapshot.data.body);
-
-                  List<Widget> list = new List<Widget>();
-                  list.add(profileCard);
-                  userTweets.forEach((tweet) {
-                    var t = Tweet.fromJson(tweet);
-                    TweetCard r = TweetCard(tweet: t);
-                    list.add(GestureDetector(
-                      child: r,
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) {
-                          return TweetDetails(tweet: t);
-                        }));
-                      },
-                    ));
-                  });
-                  _cachedTweets = list;
-                  return Expanded(child:
-                      StreamBuilder<Object>(builder: (context, snapshot) {
-                    return ListView(children: _cachedTweets, shrinkWrap: true);
-                  }));
-                } else
-                  return Align(
-                      alignment: Alignment.center,
-                      child: CircularProgressIndicator());
-              },
-            )
-          ],
+          children: <Widget>[profile],
         ),
       ),
     );
@@ -162,7 +165,7 @@ class ProfileState extends State<Profile> {
   Future<dynamic> _getUserTimeline() async {
     var client = Twitterapi().getClient();
     return await client.get(
-        'https://api.twitter.com/1.1/statuses/user_timeline.json?count=200&screen_name=' +
+        'https://api.twitter.com/1.1/statuses/user_timeline.json?count=200&tweet_mode=expanded&screen_name=' +
             widget.user['screen_name']);
   }
 
