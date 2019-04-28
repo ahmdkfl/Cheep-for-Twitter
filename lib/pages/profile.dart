@@ -70,7 +70,7 @@ class ProfileState extends State<Profile> {
                   // Displays the verified sign is the user is verified by Twitter
                   Container(
                       child: data['verified']
-                          ? IconButton(icon: Icon(Icons.verified_user))
+                          ? IconButton(icon: Icon(Icons.verified_user), onPressed: (){},)
                           : Container()),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.center,
