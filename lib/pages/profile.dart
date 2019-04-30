@@ -44,6 +44,22 @@ class ProfileState extends State<Profile> {
     // Date and time of the creation of the tweet
     Map datetime = _parseDate(data['created_at']);
 
+    // If the profile image does not exist, then assign it as an person icon
+    var profileImage;
+    if (data['profile_image_url'] == null ?? "")
+      profileImage = IconButton(
+        icon: Icon(Icons.person),
+      );
+    else
+      profileImage = CachedNetworkImage(
+        imageUrl: data['profile_image_url']
+            .replaceAll(new RegExp(r'normal'), '200x200'),
+        errorWidget: (context, url, error) => new Icon(Icons.person),
+        height: 100,
+        width: 100,
+        // Rounds the image
+        fit: BoxFit.cover,
+      );
     // Profile card
     var profileCard = Card(
       child: Padding(
@@ -56,21 +72,15 @@ class ProfileState extends State<Profile> {
                 children: <Widget>[
                   // It is the rounded image that contains the user profile image =
                   ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: data['profile_image_url']
-                          .replaceAll(new RegExp(r'normal'), '200x200'),
-                      errorWidget: (context, url, error) =>
-                          new Icon(Icons.person),
-                      height: 100,
-                      width: 100,
-                      // Rounds the image
-                      fit: BoxFit.cover,
-                    ),
+                    child: profileImage,
                   ),
                   // Displays the verified sign is the user is verified by Twitter
                   Container(
                       child: data['verified']
-                          ? IconButton(icon: Icon(Icons.verified_user), onPressed: (){},)
+                          ? IconButton(
+                              icon: Icon(Icons.verified_user),
+                              onPressed: () {},
+                            )
                           : Container()),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.center,
