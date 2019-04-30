@@ -7,9 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// This class utilises the oauth1 plugin. The platform requests from the Twitter API the requestes the are needed.
 /// The clientCredentials class contains the apiKey and the apiSecret. Both classes make up an authorization request.
 class Twitterapi {
-  static const String _apiKey = '***REMOVED***';
+  static const String _apiKey = 'LLDeVY0ySvjoOVmJ2XgBItvTV';
   static const String _apiSecret =
-      '***REMOVED***';
+      'JmEpkWXXmY7BYoQor5AyR84BD2BiN47GIBUPXn3bopZqodJ0MV';
   static var _platform, _clientCredentials, _auth, _authorizationResult, client;
 
   /// Create instances of platform, client credentials and authorization

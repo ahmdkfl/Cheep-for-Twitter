@@ -72,6 +72,47 @@ class TweetCardState extends State<TweetCard> {
       time = time + " " + datetime['year'];
     }
 
+    // If the profile image does not exist, then assign it as an person icon
+    var profileImage;
+    if (image != null ?? "")
+      profileImage = CachedNetworkImage(
+          imageUrl: image,
+          errorWidget: (context, url, error) => new Icon(Icons.error),
+          height: 55,
+          width: 55,
+          fit: BoxFit.cover);
+    else
+      profileImage = IconButton(
+        icon: Icon(Icons.person),
+      );
+
+    var textSection = Linkify(
+      text: text,
+      humanize: true,
+      onOpen: (link) async {
+        if (await canLaunch(link.url)) {
+          await launch(link.url);
+        } else {
+          throw 'Could not launch $link';
+        }
+      },
+    );
+
+    var tweetActions = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        ReplyWidget(userName: name, id: widget.tweet.idStr),
+        RetweetWidget(
+            isRetweeted: retweeted,
+            retweetCount: retweetCount,
+            id: widget.tweet.idStr),
+        FavoriteWidget(
+            isFavorited: favorited,
+            favoriteCount: favoriteCount,
+            id: widget.tweet.idStr),
+      ],
+    );
+
     // normal card the displays essential information about a tweet
     var tweetCard = Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -85,13 +126,7 @@ class TweetCardState extends State<TweetCard> {
                 Container(
                   child: GestureDetector(
                     child: ClipOval(
-                      child: CachedNetworkImage(
-                          imageUrl: image,
-                          errorWidget: (context, url, error) =>
-                              new Icon(Icons.error),
-                          height: 55,
-                          width: 55,
-                          fit: BoxFit.cover),
+                      child: profileImage,
                     ),
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(builder: (_) {
@@ -128,32 +163,9 @@ class TweetCardState extends State<TweetCard> {
                     ),
                     Container(
                         margin: EdgeInsets.symmetric(vertical: 3.0),
-                        child: Linkify(
-                          text: text,
-                          humanize: true,
-                          onOpen: (link) async {
-                            if (await canLaunch(link.url)) {
-                              await launch(link.url);
-                            } else {
-                              throw 'Could not launch $link';
-                            }
-                          },
-                        )),
+                        child: textSection),
                     Column(children: _getTweetImages()),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        ReplyWidget(userName: name, id: widget.tweet.idStr),
-                        RetweetWidget(
-                            isRetweeted: retweeted,
-                            retweetCount: retweetCount,
-                            id: widget.tweet.idStr),
-                        FavoriteWidget(
-                            isFavorited: favorited,
-                            favoriteCount: favoriteCount,
-                            id: widget.tweet.idStr),
-                      ],
-                    )
+                    tweetActions
                   ],
                 ))
               ]),
@@ -172,13 +184,7 @@ class TweetCardState extends State<TweetCard> {
             Container(
               child: GestureDetector(
                 child: ClipOval(
-                  child: CachedNetworkImage(
-                    imageUrl: image,
-                    errorWidget: (context, url, error) => new Icon(Icons.error),
-                    height: 55,
-                    width: 55,
-                    fit: BoxFit.cover,
-                  ),
+                  child: profileImage,
                 ),
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
@@ -208,36 +214,9 @@ class TweetCardState extends State<TweetCard> {
             ),
           ],
         ),
-        Container(
-            margin: EdgeInsets.only(bottom: 8.0),
-            child:
-                // Text(text)
-                Linkify(
-              text: text,
-              humanize: true,
-              onOpen: (link) async {
-                if (await canLaunch(link.url)) {
-                  await launch(link.url);
-                } else {
-                  throw 'Could not launch $link';
-                }
-              },
-            )),
+        Container(margin: EdgeInsets.only(bottom: 8.0), child: textSection),
         Column(children: _getTweetImages()),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            ReplyWidget(userName: name, id: widget.tweet.idStr),
-            RetweetWidget(
-                isRetweeted: retweeted,
-                retweetCount: retweetCount,
-                id: widget.tweet.idStr),
-            FavoriteWidget(
-                isFavorited: favorited,
-                favoriteCount: favoriteCount,
-                id: widget.tweet.idStr),
-          ],
-        ),
+        tweetActions,
         Divider(height: 5)
       ],
     );
