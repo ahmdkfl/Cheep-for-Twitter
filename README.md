@@ -29,5 +29,5 @@ Login Page and Homepage
 <img src="https://user-images.githubusercontent.com/32685864/57876501-fb21a800-7804-11e9-9b0c-96ada188b91e.jpg" width="400">
 </p>
 
-
+### License
 [Creative Commons Licence - CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
