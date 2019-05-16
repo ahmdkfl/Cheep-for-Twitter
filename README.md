@@ -29,5 +29,14 @@ Login Page and Homepage
 <img src="https://user-images.githubusercontent.com/32685864/57876501-fb21a800-7804-11e9-9b0c-96ada188b91e.jpg" width="400">
 </p>
 
+### References
+* [creating-bottom-navigation-tabs-using-flutter](https://medium.com/@uncoded_decimal/creating-bottom-navigation-tabs-using-flutter-2286681450d4)
+* [Replies to a particular tweet, Twitter API](https://stackoverflow.com/questions/2693553/replies-to-a-particular-tweet-twitter-api)
+* [Flutter : Collapsing Toolbar — Sliver App Bar](https://medium.com/@diegoveloper/flutter-collapsing-toolbar-sliver-app-bar-14b858e87abe)
+* [Hide Appbar on Scroll Flutter?](https://stackoverflow.com/questions/51948252/hide-appbar-on-scroll-flutter)
+* [Better way to load images from network flutter](https://stackoverflow.com/questions/53577962/better-way-to-load-images-from-network-flutter)
+* [Firestore async load and populate listview flutter](https://stackoverflow.com/questions/49792679/firestore-async-load-and-populate-listview-flutter)
+* [How do you build a Singleton in Dart?](https://stackoverflow.com/questions/12649573/how-do-you-build-a-singleton-in-dart)
+
 ### License
 [Creative Commons Licence - CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
