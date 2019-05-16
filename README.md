@@ -1,5 +1,5 @@
 # Cheep for Twitter
-##Twitter client for Android and iOS using Flutter
+###Twitter client for Android and iOS using Flutter
 
 It is a Twitter client that connects to the Twitter API and retrieves data of the authenticating user and display them in an organised way.
 
